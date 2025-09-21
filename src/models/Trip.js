@@ -1,81 +1,68 @@
 import mongoose from "mongoose";
 
 const tripSchema = new mongoose.Schema({
-  // Basic trip information
-  name: { type: String, required: true },
-  description: { type: String, required: true },
-
   // User who created this trip
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-
-  // Trip details
-  startDate: { type: Date, required: true },
-  endDate: { type: Date, required: true },
-  duration: { type: Number }, // in days, calculated field
-
-  // Budget information
-  estimatedBudget: {
-    min: { type: Number },
-    max: { type: Number },
-    currency: { type: String, default: 'VND' }
-  },
-  actualCost: { type: Number, default: 0 },
-
-  // Trip preferences
-  travelStyle: {
-    type: String,
-    enum: ['budget', 'mid-range', 'luxury', 'backpacker'],
-    default: 'mid-range'
-  },
-  groupSize: { type: Number, default: 1 },
-  groupType: {
-    type: String,
-    enum: ['solo', 'couple', 'family', 'friends', 'business'],
-    default: 'solo'
-  },
-
-  // Destinations and itinerary
-  destinations: [{
+  userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Destination'
-  }],
-  itinerary: [{
+    ref: 'User',
+    required: true,
+    index: true
+  },
+
+  // AI-generated itinerary (JSON format from Gemini)
+  itinerary: {
+    type: mongoose.Schema.Types.Mixed,
+    required: true
+  },
+
+  // Places referenced in the itinerary
+  places: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Itinerary'
+    ref: 'Place'
   }],
 
-  // Trip status and metadata
+  // Trip metadata
+  destination: String, // Main destination extracted by AI
+  interests: [String], // User interests extracted by AI
+
+  // Trip status
   status: {
     type: String,
-    enum: ['planning', 'confirmed', 'ongoing', 'completed', 'cancelled'],
-    default: 'planning'
+    enum: ['active', 'completed', 'cancelled'],
+    default: 'active'
   },
-  isPublic: { type: Boolean, default: false },
-  tags: [String],
 
-  // AI-generated content
-  aiRecommendations: [{
-    type: { type: String }, // 'restaurant', 'activity', 'accommodation'
-    content: String,
-    confidence: Number
-  }],
+  // Chat session reference (if applicable)
+  chatSessionId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'ChatSession'
+  },
 
-  // Social features
-  likes: { type: Number, default: 0 },
-  shares: { type: Number, default: 0 },
+  // Trip sharing
+  isPublic: {
+    type: Boolean,
+    default: false
+  },
+
+  // User feedback
+  rating: {
+    type: Number,
+    min: 1,
+    max: 5
+  },
+
+  feedback: String
 
 }, {
   timestamps: true
 });
 
-// Calculate duration before saving
-tripSchema.pre('save', function(next) {
-  if (this.startDate && this.endDate) {
-    const diffTime = Math.abs(this.endDate - this.startDate);
-    this.duration = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  }
-  next();
-});
+// Indexes for better query performance
+tripSchema.index({ userId: 1 });
+tripSchema.index({ status: 1 });
+tripSchema.index({ destination: 1 });
+tripSchema.index({ createdAt: -1 });
+tripSchema.index({ userId: 1, status: 1 });
 
 const Trip = mongoose.model("Trip", tripSchema);
 export default Trip;
