@@ -1,6 +1,8 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import compression from "compression";
@@ -15,13 +17,12 @@ import userSubscriptionsRoute from "./routes/userSubscriptionsRoutes.js";
 import chatSessionRoute from "./routes/chatSessionsRouters.js";
 import authRoute from "./routes/authRoutes.js";
 
+
 // Import database connection
 import { connectDB } from "./config/db.js";
 
 // Import middleware
 import { verifyToken } from "./middleware/auth.js";
-
-dotenv.config();
 
 const PORT = process.env.PORT || 5001;
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -57,7 +58,7 @@ app.use(compression());
 const corsOptions = {
   origin: NODE_ENV === 'production'
     ? ['https://yourdomain.com'] // Replace with your production domain
-    : ['http://localhost:3000', 'http://localhost:3001'],
+    : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173'],
   credentials: true,
   optionsSuccessStatus: 200
 };

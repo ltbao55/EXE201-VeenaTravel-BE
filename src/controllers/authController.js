@@ -109,8 +109,8 @@ export const login = async (req, res) => {
       });
     }
 
-    // Find user by email
-    const user = await User.findOne({ email });
+    // Find user by email and include password field
+    const user = await User.findOne({ email }).select('+password');
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -119,7 +119,7 @@ export const login = async (req, res) => {
     }
 
     // Check if user registered with email/password (not Firebase)
-    if (!user.password) {
+    if (!user.password || user.authMethod !== 'email') {
       return res.status(401).json({
         success: false,
         message: 'This account was created with a different sign-in method. Please use the appropriate sign-in option.'
@@ -218,8 +218,8 @@ export const changePassword = async (req, res) => {
     }
 
     // Get user with password
-    const user = await User.findById(req.user._id);
-    if (!user || !user.password) {
+    const user = await User.findById(req.user._id).select('+password');
+    if (!user || !user.password || user.authMethod !== 'email') {
       return res.status(400).json({
         success: false,
         message: 'Password change not available for this account type'

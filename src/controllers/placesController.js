@@ -1,5 +1,5 @@
 import Place from '../models/Place.js';
-import geocodingService from '../services/geocoding.js';
+import geocodingService from '../services/mapbox-service.js';
 
 // Get all places
 export const getAllPlaces = async (req, res) => {

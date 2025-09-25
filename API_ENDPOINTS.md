@@ -32,6 +32,10 @@ Users Management:
 - POST /users/:id/favorites            - Add favorite destination
 - DELETE /users/:id/favorites/:destinationId - Remove favorite destination
 - GET /users/:id/trips                 - Get user's trips
+- PUT /api/auth/change-password
+- GET /api/auth/profile
+- POST /api/auth/login
+- POST /api/auth/register
 
 Trips Management:
 - GET /trips                           - Get all trips with filters
