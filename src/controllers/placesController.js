@@ -1,51 +1,54 @@
 import Place from '../models/Place.js';
 import geocodingService from '../services/geocoding.js';
+import pineconeService from '../services/pineconeService.js';
+import embeddingService from '../services/embeddingService.js';
+import openRouterService from '../services/openRouterService.js';
 
 // Get all places
 export const getAllPlaces = async (req, res) => {
   try {
-    const { 
-      category, 
-      tags, 
-      search, 
-      isActive, 
-      page = 1, 
-      limit = 20 
+    const {
+      category,
+      tags,
+      search,
+      isActive,
+      page = 1,
+      limit = 20
     } = req.query;
-    
+
     const filter = {};
-    
+
     // Filter by category
     if (category) {
       filter.category = category;
     }
-    
+
     // Filter by tags
     if (tags) {
       const tagArray = tags.split(',').map(tag => tag.trim());
       filter.tags = { $in: tagArray };
     }
-    
+
     // Filter by active status
     if (isActive !== undefined) {
       filter.isActive = isActive === 'true';
     }
-    
+
     // Text search
     if (search) {
       filter.$text = { $search: search };
     }
-    
+
     const skip = (parseInt(page) - 1) * parseInt(limit);
-    
+
     const places = await Place.find(filter)
       .populate('addedBy', 'name email')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(parseInt(limit));
-    
+
     const total = await Place.countDocuments(filter);
-    
+
     res.json({
       success: true,
       data: places,
@@ -69,17 +72,17 @@ export const getAllPlaces = async (req, res) => {
 export const getPlaceById = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     const place = await Place.findById(id)
       .populate('addedBy', 'name email');
-    
+
     if (!place) {
       return res.status(404).json({
         success: false,
         message: 'Place not found'
       });
     }
-    
+
     res.json({
       success: true,
       data: place
@@ -142,7 +145,7 @@ export const createPlace = async (req, res) => {
       contact: contact || {},
       openingHours: openingHours || {},
       priceRange: priceRange || '$$',
-      addedBy: req.user._id
+      addedBy: null // Authentication removed
     });
 
     await place.save();
@@ -314,26 +317,26 @@ export const batchGeocodePlaces = async (req, res) => {
     for (const place of placesWithoutCoords) {
       try {
         const coordinates = await geocodingService.getCoordinates(place.address);
-        
+
         place.location = {
           lat: coordinates.lat,
           lng: coordinates.lng
         };
-        
+
         await place.save();
-        
+
         results.push({
           placeId: place._id,
           name: place.name,
           success: true,
           coordinates: coordinates
         });
-        
+
         successCount++;
-        
+
         // Add delay to respect API rate limits
         await new Promise(resolve => setTimeout(resolve, 200));
-        
+
       } catch (error) {
         results.push({
           placeId: place._id,
@@ -358,6 +361,99 @@ export const batchGeocodePlaces = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to batch geocode places'
+    });
+  }
+};
+
+// Semantic search with Pinecone
+export const semanticSearch = async (req, res) => {
+  const { query, topK = 10 } = req.body;
+
+  if (!query) {
+    return res.status(400).json({ success: false, message: 'Query is required' });
+  }
+
+  try {
+    const queryEmbedding = await embeddingService.createEmbedding(query);
+    const searchResults = await pineconeService.queryByVector(queryEmbedding, topK);
+
+    res.json({ success: true, data: searchResults });
+  } catch (error) {
+    console.error('Semantic search error:', error);
+    res.status(500).json({ success: false, message: 'Failed to perform semantic search' });
+  }
+};
+
+// Find similar places with Pinecone
+export const findSimilarPlaces = async (req, res) => {
+  const { id } = req.params;
+  const { topK = 5 } = req.query;
+
+  try {
+    const place = await Place.findById(id);
+    if (!place) {
+      return res.status(404).json({ success: false, message: 'Place not found' });
+    }
+
+    const placeEmbedding = await embeddingService.createEmbedding(place.description);
+    const similarPlaces = await pineconeService.queryByVector(placeEmbedding, topK);
+
+    res.json({ success: true, data: similarPlaces });
+  } catch (error) {
+    console.error('Find similar places error:', error);
+    res.status(500).json({ success: false, message: 'Failed to find similar places' });
+  }
+};
+
+// Get Pinecone index stats
+export const getPineconeIndexStats = async (req, res) => {
+  try {
+    const stats = await pineconeService.getIndexStats();
+    res.json({ success: true, data: stats });
+  } catch (error) {
+    console.error('Get Pinecone stats error:', error);
+    res.status(500).json({ success: false, message: 'Failed to get Pinecone index stats' });
+  }
+};
+
+// Search by tags using existing vectors (no new embedding generation)
+export const searchByTagsVector = async (req, res) => {
+  const { tags, topK = 10 } = req.body;
+
+  if (!tags || !Array.isArray(tags) || tags.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'Tags array is required'
+    });
+  }
+
+  try {
+    // This uses pre-computed embeddings stored in Pinecone
+    const placeIds = await pineconeService.queryByTags(tags, topK);
+
+    if (placeIds.length === 0) {
+      return res.json({
+        success: true,
+        data: [],
+        message: 'No places found matching the specified tags'
+      });
+    }
+
+    // Fetch full place details from MongoDB
+    const places = await Place.find({ _id: { $in: placeIds } })
+      .select('name description tags category location rating priceRange images')
+      .lean();
+
+    res.json({
+      success: true,
+      data: places,
+      count: places.length
+    });
+  } catch (error) {
+    console.error('Search by tags vector error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to search by tags using vector search'
     });
   }
 };

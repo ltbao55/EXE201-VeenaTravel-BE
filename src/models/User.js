@@ -1,15 +1,7 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-  // Firebase Authentication integration
-  firebaseUid: {
-    type: String,
-    required: true,
-    unique: true,
-    index: true
-  },
-
-  // Basic user information from Firebase
+  // Basic user information
   email: {
     type: String,
     required: true,
@@ -41,7 +33,6 @@ const userSchema = new mongoose.Schema({
 });
 
 // Indexes for better query performance
-userSchema.index({ firebaseUid: 1 });
 userSchema.index({ email: 1 });
 userSchema.index({ role: 1 });
 

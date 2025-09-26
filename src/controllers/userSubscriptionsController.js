@@ -5,7 +5,14 @@ import User from '../models/User.js';
 // Get user's current subscription
 export const getCurrentSubscription = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.query.userId || req.params.userId;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'userId is required as query parameter'
+      });
+    }
     
     const subscription = await UserSubscription.findOne({
       userId,
@@ -36,7 +43,14 @@ export const getCurrentSubscription = async (req, res) => {
 // Get user's subscription history
 export const getSubscriptionHistory = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.query.userId || req.params.userId;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'userId is required as query parameter'
+      });
+    }
     const { page = 1, limit = 10 } = req.query;
     
     const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -104,7 +118,14 @@ export const createDefaultSubscription = async (userId) => {
 // Check if user can create trip (within limits)
 export const checkTripLimit = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.query.userId || req.params.userId;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'userId is required as query parameter'
+      });
+    }
     
     const subscription = await UserSubscription.findOne({
       userId,
@@ -142,7 +163,14 @@ export const checkTripLimit = async (req, res) => {
 // Check if user can send message (within limits)
 export const checkMessageLimit = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.query.userId || req.params.userId;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'userId is required as query parameter'
+      });
+    }
     
     const subscription = await UserSubscription.findOne({
       userId,

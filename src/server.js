@@ -13,12 +13,14 @@ import plansRoute from "./routes/plansRoutes.js";
 import placesRoute from "./routes/placesRoutes.js";
 import userSubscriptionsRoute from "./routes/userSubscriptionsRoutes.js";
 import chatSessionRoute from "./routes/chatSessionsRouters.js";
+import vectorSearchRoute from './routes/vectorSearchRoutes.js';
+import aiRoute from './routes/aiRoutes.js';
 
 // Import database connection
 import { connectDB } from "./config/db.js";
 
 // Import middleware
-import { verifyFirebaseToken } from "./middleware/auth.js";
+// Authentication middleware removed
 
 dotenv.config();
 
@@ -56,9 +58,11 @@ app.use(compression());
 const corsOptions = {
   origin: NODE_ENV === 'production'
     ? ['https://yourdomain.com'] // Replace with your production domain
-    : ['http://localhost:3000', 'http://localhost:3001'],
+    : ['http://localhost:3000', 'http://127.0.0.1:5500', 'http://localhost:5500', 'file://'], // Allow local development
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
 app.use(cors(corsOptions));
 
@@ -93,13 +97,15 @@ app.use((req, res, next) => {
   next();
 });
 
-// API Routes with authentication
-app.use("/api/trips", verifyFirebaseToken, tripRoute);
-app.use("/api/users", verifyFirebaseToken, userRoute);
-app.use("/api/plans", plansRoute); // Public access for browsing plans
-app.use("/api/places", placesRoute); // Public access for browsing places
-app.use("/api/subscriptions", verifyFirebaseToken, userSubscriptionsRoute);
-app.use("/api/chat-sessions", verifyFirebaseToken, chatSessionRoute);
+// API Routes (authentication removed)
+app.use("/api/trips", tripRoute);
+app.use("/api/users", userRoute);
+app.use("/api/plans", plansRoute);
+app.use("/api/places", placesRoute);
+app.use("/api/subscriptions", userSubscriptionsRoute);
+app.use("/api/chat-sessions", chatSessionRoute);
+app.use("/api/vector-search", vectorSearchRoute);
+app.use("/api/ai", aiRoute);
 
 // Health check endpoint
 app.get("/api/health", (_, res) => {
@@ -121,12 +127,12 @@ app.get("/api/docs", (_, res) => {
             "GET /api/health": "Health check",
             "GET /api/plans": "Get travel plans",
             "GET /api/places": "Get places",
-            "POST /api/users": "User management (requires auth)",
-            "POST /api/trips": "Trip management (requires auth)",
-            "POST /api/subscriptions": "Subscription management (requires auth)",
-            "POST /api/chat-sessions": "Chat sessions (requires auth)"
+            "POST /api/users": "User management",
+            "POST /api/trips": "Trip management",
+            "POST /api/subscriptions": "Subscription management",
+            "POST /api/chat-sessions": "Chat sessions"
         },
-        authentication: "Bearer token required for protected routes"
+        authentication: "No authentication required"
     });
 });
 

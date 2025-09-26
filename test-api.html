@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veena Travel API Tester</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .config-section {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .config-section label {
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .config-section input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 300px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            border: 1px solid #e9ecef;
+        }
+
+        .test-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #4facfe;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+
+        .results-section {
+            grid-column: 1 / -1;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            border: 1px solid #e9ecef;
+            margin-top: 20px;
+        }
+
+        .response-container {
+            background: #2d3748;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .response-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .response-status {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .status-error {
+            background: #f56565;
+            color: white;
+        }
+
+        .response-json {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4facfe;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .quick-tests {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            border-left: 4px solid #f56565;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+            
+            .config-section input {
+                width: 100%;
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌴 Veena Travel API Tester</h1>
+            <p>Test all backend endpoints with real data from MongoDB and Pinecone</p>
+        </div>
+
+        <div class="config-section">
+            <label for="baseUrl">Base URL:</label>
+            <input type="text" id="baseUrl" value="http://localhost:5001" placeholder="http://localhost:5001">
+        </div>
+
+        <div class="main-content">
+            <!-- Places API Section -->
+            <div class="test-section">
+                <h2>📍 Places API</h2>
+                
+                <div class="quick-tests">
+                    <button class="btn" onclick="testGetAllPlaces()">Get All Places</button>
+                    <button class="btn" onclick="testGetPlacesWithLimit()">Get 10 Places</button>
+                    <button class="btn" onclick="testSearchBeach()">Search "Beach"</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="searchQuery">Search Query:</label>
+                    <input type="text" id="searchQuery" placeholder="beach, hotel, resort..." value="beach">
+                </div>
+                
+                <div class="form-group">
+                    <label for="searchCategory">Category Filter:</label>
+                    <input type="text" id="searchCategory" placeholder="hotel, restaurant, attraction..." value="">
+                </div>
+
+                <button class="btn" onclick="testSearchPlaces()">Search Places</button>
+                <button class="btn btn-secondary" onclick="testNearbyPlaces()">Test Nearby</button>
+            </div>
+
+            <!-- Vector Search Section -->
+            <div class="test-section">
+                <h[object Object]r Search (Pinecone)</h2>
+                
+                <div class="quick-tests">
+                    <button class="btn" onclick="testVectorSearch('beach resort')">Search "Beach Resort"</button>
+                    <button class="btn" onclick="testVectorSearch('luxury hotel')">Search "Luxury Hotel"</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="vectorQuery">Vector Search Query:</label>
+                    <input type="text" id="vectorQuery" placeholder="luxury beach resort with spa..." value="beach resort">
+                </div>
+                
+                <div class="form-group">
+                    <label for="vectorLimit">Results Limit:</label>
+                    <input type="number" id="vectorLimit" value="5" min="1" max="20">
+                </div>
+
+                <button class="btn" onclick="testVectorSearchCustom()">Vector Search</button>
+                <button class="btn btn-secondary" onclick="testPineconeStatus()">Check Pinecone</button>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section">
+            <h2>📊 API Response Results</h2>
+            <div class="quick-tests">
+                <button class="btn btn-danger" onclick="clearResults()">Clear Results</button>
+                <button class="btn btn-secondary" onclick="copyResults()">Copy Response</button>
+            </div>
+            <div id="results"></div>
+        </div>
+    </div>
