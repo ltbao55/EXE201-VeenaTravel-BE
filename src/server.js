@@ -15,12 +15,13 @@ import userSubscriptionsRoute from "./routes/userSubscriptionsRoutes.js";
 import chatSessionRoute from "./routes/chatSessionsRouters.js";
 import vectorSearchRoute from './routes/vectorSearchRoutes.js';
 import aiRoute from './routes/aiRoutes.js';
+import authRoute from "./routes/authRoutes.js";
 
 // Import database connection
 import { connectDB } from "./config/db.js";
 
 // Import middleware
-// Authentication middleware removed
+import { verifyToken } from "./middleware/auth.js";
 
 dotenv.config();
 
@@ -97,13 +98,21 @@ app.use((req, res, next) => {
   next();
 });
 
-// API Routes (authentication removed)
-app.use("/api/trips", tripRoute);
-app.use("/api/users", userRoute);
+// API Routes
+// Auth routes for email/password
+app.use("/api/auth", authRoute);
+
+// Protected routes with dual authentication (Firebase or JWT)
+app.use("/api/trips", verifyToken, tripRoute);
+app.use("/api/users", verifyToken, userRoute);
+app.use("/api/subscriptions", verifyToken, userSubscriptionsRoute);
+app.use("/api/chat-sessions", verifyToken, chatSessionRoute);
+
+// Public routes
 app.use("/api/plans", plansRoute);
 app.use("/api/places", placesRoute);
-app.use("/api/subscriptions", userSubscriptionsRoute);
-app.use("/api/chat-sessions", chatSessionRoute);
+
+// AI and vector search routes (public for now)
 app.use("/api/vector-search", vectorSearchRoute);
 app.use("/api/ai", aiRoute);
 
@@ -125,14 +134,23 @@ app.get("/api/docs", (_, res) => {
         message: "Veena Travel API Documentation",
         endpoints: {
             "GET /api/health": "Health check",
-            "GET /api/plans": "Get travel plans",
-            "GET /api/places": "Get places",
-            "POST /api/users": "User management",
-            "POST /api/trips": "Trip management",
-            "POST /api/subscriptions": "Subscription management",
-            "POST /api/chat-sessions": "Chat sessions"
+            "GET /api/plans": "Get travel plans (public)",
+            "GET /api/places": "Get places (public)",
+            "POST /api/auth/register": "Register with email/password",
+            "POST /api/auth/login": "Login with email/password",
+            "GET /api/auth/profile": "Get user profile (JWT auth)",
+            "PUT /api/auth/change-password": "Change password (JWT auth)",
+            "POST /api/users": "User management (requires auth)",
+            "POST /api/trips": "Trip management (requires auth)",
+            "POST /api/subscriptions": "Subscription management (requires auth)",
+            "POST /api/chat-sessions": "Chat sessions (requires auth)",
+            "GET /api/vector-search": "Vector search for places",
+            "POST /api/ai": "AI chat and recommendations"
         },
-        authentication: "No authentication required"
+        authentication: {
+            "Firebase": "Bearer <firebase_token> - for Firebase authenticated users",
+            "JWT": "Bearer <jwt_token> - for email/password authenticated users"
+        }
     });
 });
 
