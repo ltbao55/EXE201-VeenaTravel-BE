@@ -2,10 +2,9 @@ import mongoose from "mongoose";
 
 const placeSchema = new mongoose.Schema({
   // Basic place information
-  name: { 
-    type: String, 
-    required: true,
-    index: true
+  name: {
+    type: String,
+    required: true
   },
   
   // Full text address for Geocoding API
@@ -17,8 +16,7 @@ const placeSchema = new mongoose.Schema({
   // Description and categorization
   description: String,
   tags: [{
-    type: String,
-    index: true
+    type: String
   }],
   
   // Coordinates from Google Geocoding API
@@ -91,7 +89,6 @@ const placeSchema = new mongoose.Schema({
 });
 
 // Indexes for better query performance
-placeSchema.index({ name: 1 });
 placeSchema.index({ tags: 1 });
 placeSchema.index({ category: 1 });
 placeSchema.index({ 'location.lat': 1, 'location.lng': 1 });

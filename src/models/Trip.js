@@ -1,25 +1,20 @@
 import mongoose from "mongoose";
 
 const tripSchema = new mongoose.Schema({
-  // User who created this trip
+  // User who created this trip (optional for anonymous trips)
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
-    index: true
+    required: false,
+    default: null
   },
 
   // AI-generated itinerary (JSON format from Gemini)
+  // ✅ Includes geocoded locations with coordinates, photos, place_id, etc.
   itinerary: {
     type: mongoose.Schema.Types.Mixed,
     required: true
   },
-
-  // Places referenced in the itinerary
-  places: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Place'
-  }],
 
   // Trip metadata
   destination: String, // Main destination extracted by AI
@@ -28,8 +23,8 @@ const tripSchema = new mongoose.Schema({
   // Trip status
   status: {
     type: String,
-    enum: ['active', 'completed', 'cancelled'],
-    default: 'active'
+    enum: ['draft', 'active', 'completed', 'cancelled'],
+    default: 'draft'
   },
 
   // Chat session reference (if applicable)
