@@ -63,7 +63,6 @@ const planSchema = new mongoose.Schema({
 });
 
 // Indexes for better query performance
-planSchema.index({ name: 1 });
 planSchema.index({ type: 1 });
 planSchema.index({ isActive: 1 });
 planSchema.index({ displayOrder: 1 });

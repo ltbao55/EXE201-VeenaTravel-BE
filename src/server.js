@@ -17,12 +17,24 @@ import userSubscriptionsRoute from "./routes/userSubscriptionsRoutes.js";
 import chatSessionRoute from "./routes/chatSessionsRouters.js";
 import authRoute from "./routes/authRoutes.js";
 
+// Import new AI-powered routes
+import itineraryRoute from "./routes/itineraryRoutes.js";
+import searchRoute from "./routes/searchRoutes.js";
+import mapsRoute from "./routes/mapsRoutes.js";
+import integratedSearchRoute from "./routes/integrated-search.js";
+import chatRoute from "./routes/chatRoutes.js";
+import testMapsRoute from "./routes/test-maps.js";
+
+// Import hybrid search system routes
+import hybridSearchRoute from "./routes/hybridSearchRoutes.js";
+import adminRoute from "./routes/adminRoutes.js";
+
 
 // Import database connection
 import { connectDB } from "./config/db.js";
 
 // Import middleware
-import { verifyToken } from "./middleware/auth.js";
+import { bypassAuth } from "./middleware/auth.js";
 
 const PORT = process.env.PORT || 5001;
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -58,7 +70,7 @@ app.use(compression());
 const corsOptions = {
   origin: NODE_ENV === 'production'
     ? ['https://yourdomain.com'] // Replace with your production domain
-    : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173'],
+    : ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3001', 'http://localhost:5173'],
   credentials: true,
   optionsSuccessStatus: 200
 };
@@ -85,29 +97,33 @@ if (NODE_ENV === 'development') {
   app.use(morgan('combined'));
 }
 
-// Custom request logging
-app.use((req, res, next) => {
-  const start = Date.now();
-  res.on('finish', () => {
-    const duration = Date.now() - start;
-    console.log(`${new Date().toISOString()} - ${req.method} ${req.path} - ${res.statusCode} - ${duration}ms`);
-  });
-  next();
-});
+
 
 // API Routes
 // Auth routes for email/password
 app.use("/api/auth", authRoute);
 
-// Protected routes with dual authentication (Firebase or JWT)
-app.use("/api/trips", verifyToken, tripRoute);
-app.use("/api/users", verifyToken, userRoute);
-app.use("/api/subscriptions", verifyToken, userSubscriptionsRoute);
-app.use("/api/chat-sessions", verifyToken, chatSessionRoute);
+// Protected routes with bypass authentication
+app.use("/api/trips", bypassAuth, tripRoute);
+app.use("/api/users", bypassAuth, userRoute);
+app.use("/api/subscriptions", bypassAuth, userSubscriptionsRoute);
+app.use("/api/chat-sessions", bypassAuth, chatSessionRoute);
 
 // Public routes
 app.use("/api/plans", plansRoute);
 app.use("/api/places", placesRoute);
+
+// New AI-powered routes (public access)
+app.use("/api/itinerary", itineraryRoute);
+app.use("/api/search", searchRoute);
+app.use("/api/maps", mapsRoute);
+app.use("/api/integrated-search", integratedSearchRoute);
+app.use("/api/chat", chatRoute);
+app.use("/api/test-maps", testMapsRoute);
+
+// Hybrid search system routes
+app.use("/api/hybrid-search", hybridSearchRoute);
+app.use("/api/admin/partner-places", adminRoute);
 
 // Health check endpoint
 app.get("/api/health", (_, res) => {
@@ -125,22 +141,27 @@ app.get("/api/docs", (_, res) => {
     res.status(200).json({
         success: true,
         message: "Veena Travel API Documentation",
+        notice: "🚨 AUTHENTICATION IS CURRENTLY DISABLED - ALL ROUTES ARE PUBLIC",
         endpoints: {
             "GET /api/health": "Health check",
             "GET /api/plans": "Get travel plans (public)",
             "GET /api/places": "Get places (public)",
-            "POST /api/auth/register": "Register with email/password",
-            "POST /api/auth/login": "Login with email/password",
-            "GET /api/auth/profile": "Get user profile (JWT auth)",
-            "PUT /api/auth/change-password": "Change password (JWT auth)",
-            "POST /api/users": "User management (requires auth)",
-            "POST /api/trips": "Trip management (requires auth)",
-            "POST /api/subscriptions": "Subscription management (requires auth)",
-            "POST /api/chat-sessions": "Chat sessions (requires auth)"
+            "POST /api/auth/register": "Register with email/password (still available)",
+            "POST /api/auth/login": "Login with email/password (still available)",
+            "GET /api/auth/profile": "Get user profile (auth bypassed)",
+            "PUT /api/auth/change-password": "Change password (auth bypassed)",
+            "POST /api/users": "User management (auth bypassed)",
+            "POST /api/trips": "Trip management (auth bypassed)",
+            "POST /api/subscriptions": "Subscription management (auth bypassed)",
+            "POST /api/chat-sessions": "Chat sessions (auth bypassed)"
         },
         authentication: {
-            "Firebase": "Bearer <firebase_token> - for Firebase authenticated users",
-            "JWT": "Bearer <jwt_token> - for email/password authenticated users"
+            "status": "DISABLED",
+            "note": "All protected routes now use mock user authentication",
+            "original": {
+                "Firebase": "Bearer <firebase_token> - for Firebase authenticated users",
+                "JWT": "Bearer <jwt_token> - for email/password authenticated users"
+            }
         }
     });
 });
@@ -205,6 +226,7 @@ const server = app.listen(PORT, () => {
     console.log(`🔗 Health check: http://localhost:${PORT}/api/health`);
     console.log(`📚 API docs: http://localhost:${PORT}/api/docs`);
     console.log(`⏰ Started at: ${new Date().toISOString()}`);
+    console.log(`🤖 Ready to serve VeenaTravel AI Chat!`);
 });
 
 // Handle unhandled promise rejections

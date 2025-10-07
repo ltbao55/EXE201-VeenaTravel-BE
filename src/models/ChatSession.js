@@ -5,16 +5,14 @@ const chatSessionSchema = new mongoose.Schema({
   sessionId: {
     type: String,
     required: true,
-    unique: true,
-    index: true
+    unique: true
   },
 
-  // User reference
+  // User reference (optional for anonymous chats)
+  // Can be ObjectId (for registered users) or String (for test/anonymous users)
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-    index: true
+    type: mongoose.Schema.Types.Mixed,  // Allow both ObjectId and String
+    required: false
   },
 
   // Chat messages
@@ -66,7 +64,7 @@ const chatSessionSchema = new mongoose.Schema({
 });
 
 // Indexes for better query performance
-chatSessionSchema.index({ sessionId: 1 });
+// Note: sessionId already has index via unique: true
 chatSessionSchema.index({ userId: 1 });
 chatSessionSchema.index({ isActive: 1 });
 chatSessionSchema.index({ lastActivity: -1 });

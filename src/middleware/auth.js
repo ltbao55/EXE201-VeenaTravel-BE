@@ -275,3 +275,35 @@ export const optionalAuth = async (req, res, next) => {
     next();
   }
 };
+
+// ============================================================================
+// AUTHENTICATION BYPASS MIDDLEWARE - FOR DEVELOPMENT/TESTING ONLY
+// ============================================================================
+// This middleware bypasses authentication by creating a mock user
+// IMPORTANT: Remove this in production and restore original auth middleware
+export const bypassAuth = async (req, res, next) => {
+  try {
+    console.log('🚨 WARNING: Authentication is bypassed! Using mock user.');
+
+    // Create a mock user object that mimics a real authenticated user
+    req.user = {
+      _id: '507f1f77bcf86cd799439011', // Mock ObjectId
+      email: 'mock@veenatravel.com',
+      name: 'Mock User (Auth Bypassed)',
+      avatar: null,
+      role: 'user',
+      authMethod: 'bypass',
+      isActive: true,
+      lastLogin: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    req.authMethod = 'bypass';
+
+    next();
+  } catch (error) {
+    console.error('Bypass auth error:', error);
+    next();
+  }
+};

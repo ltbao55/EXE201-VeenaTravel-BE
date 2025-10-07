@@ -4,8 +4,8 @@ const userSchema = new mongoose.Schema({
   // Firebase Authentication integration (optional for email/password users)
   firebaseUid: {
     type: String,
-    sparse: true, // Allow null values but maintain uniqueness when present
-    index: true
+    unique: true,
+    sparse: true // Allow null values but maintain uniqueness when present
   },
 
   // Email/Password Authentication
@@ -25,8 +25,7 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true,
-    index: true
+    unique: true
   },
   name: {
     type: String,
@@ -53,8 +52,6 @@ const userSchema = new mongoose.Schema({
 });
 
 // Indexes for better query performance
-userSchema.index({ firebaseUid: 1 });
-userSchema.index({ email: 1 });
 userSchema.index({ role: 1 });
 userSchema.index({ authMethod: 1 });
 

@@ -2,11 +2,10 @@ import mongoose from "mongoose";
 
 const userSubscriptionSchema = new mongoose.Schema({
   // User reference
-  userId: { 
-    type: mongoose.Schema.Types.ObjectId, 
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
-    index: true
+    required: true
   },
   
   // Plan reference
