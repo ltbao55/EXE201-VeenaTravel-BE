@@ -1,0 +1,1767 @@
+{
+  "test_info": {
+    "date": "2025-10-07T03:51:11.098Z",
+    "api_base_url": "http://localhost:5001",
+    "test_user": "fe-integration-test"
+  },
+  "scenarios": {
+    "simple_location_query": {
+      "description": "Simple location query - AI returns locations and suggestions",
+      "request": {
+        "message": "Đà Nẵng có gì vui?",
+        "userId": "fe-integration-test"
+      },
+      "response": {
+        "success": true,
+        "data": {
+          "response": "🌟 Tôi tìm thấy 22 địa điểm tuyệt vời cho bạn dựa trên yêu cầu của bạn.\n\n💡 **Những gì tôi có thể giúp bạn:**\n- Xem chi tiết từng địa điểm trên bản đồ\n- Lên kế hoạch lịch trình chi tiết\n- Tìm nhà hàng và khách sạn gần các địa điểm này\n- Tư vấn thời gian tham quan và di chuyển\n\nBạn có muốn tôi tư vấn thêm về lịch trình hoặc các hoạt động cụ thể không?",
+          "conversationId": "conv_1759809074937_twobhj1rf",
+          "timestamp": "2025-10-07T03:51:15.017Z",
+          "hasItineraryContext": false,
+          "hasContext": false,
+          "contextLength": 0,
+          "suggestions": [
+            "Xem thêm địa điểm khác",
+            "Lên kế hoạch chi tiết",
+            "Tìm nhà hàng gần đó"
+          ],
+          "locations": [
+            {
+              "id": "pinecone_partner_vt_seafood_palace",
+              "source": "partner",
+              "isPartner": true,
+              "name": "Hải Sản Hoàng Gia Vũng Tàu",
+              "address": "Nhà hàng hải sản cao cấp với hải sản tươi sống, view biển đẹp và không gian sang trọng",
+              "description": "Nhà hàng hải sản cao cấp với hải sản tươi sống, view biển đẹp và không gian sang trọng",
+              "rating": 4.7,
+              "coordinates": {
+                "lat": 10.3456,
+                "lng": 107.0934
+              },
+              "type": "place",
+              "category": "food",
+              "finalScore": 1194,
+              "scoreBreakdown": {
+                "partnerBonus": 1000,
+                "priorityScore": 100,
+                "ratingScore": 94,
+                "distanceScore": 0
+              }
+            },
+            {
+              "id": "pinecone_partner_vt_seaside_resort",
+              "source": "partner",
+              "isPartner": true,
+              "name": "Vũng Tàu Seaside Resort & Spa",
+              "address": "Resort nghỉ dưỡng biển với spa cao cấp, bể bơi vô cực và nhà hàng hải sản tươi sống",
+              "description": "Resort nghỉ dưỡng biển với spa cao cấp, bể bơi vô cực và nhà hàng hải sản tươi sống",
+              "rating": 4.6,
+              "coordinates": {
+                "lat": 10.3421,
+                "lng": 107.0923
+              },
+              "type": "place",
+              "category": "accommodation",
+              "finalScore": 1182,
+              "scoreBreakdown": {
+                "partnerBonus": 1000,
+                "priorityScore": 90,
+                "ratingScore": 92,
+                "distanceScore": 0
+              }
+            },
+            {
+              "id": "google_ChIJEwAAALAZQjERtz1wzxiN2ko",
+              "source": "google",
+              "isPartner": false,
+              "name": "Cửa Hàng Efora",
+              "address": "Gian hàng L2-07, Tầng 2, Vincom Plaza Đà nẵng Số 910A đường Ngô Quyền, Sơn, Trà",
+              "description": "Gian hàng L2-07, Tầng 2, Vincom Plaza Đà nẵng Số 910A đường Ngô Quyền, Sơn, Trà",
+              "rating": 5,
+              "coordinates": {
+                "lat": 16.05441189999999,
+                "lng": 108.2022079
+              },
+              "type": "store",
+              "category": "general",
+              "finalScore": 150,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 100,
+                "distanceScore": 49.99843042979149
+              }
+            },
+            {
+              "id": "google_ChIJBQKz0rsZQjERMfKu56scJr0",
+              "source": "google",
+              "isPartner": false,
+              "name": "phần mềm tự động post bài",
+              "address": "Duy Tân, Hòa Thuận Nam",
+              "description": "Duy Tân, Hòa Thuận Nam",
+              "rating": 5,
+              "coordinates": {
+                "lat": 16.0511347,
+                "lng": 108.2073609
+              },
+              "type": "point_of_interest",
+              "category": "general",
+              "finalScore": 149.34,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 100,
+                "distanceScore": 49.3397189086713
+              }
+            },
+            {
+              "id": "google_ChIJ86GUzLAZQjERV3wvEAkXwT4",
+              "source": "google",
+              "isPartner": false,
+              "name": "Công ty TNHH Nha khoa Rạng Ngời",
+              "address": "29 Nguyễn Hữu Thọ, Hòa Thuận Nam",
+              "description": "29 Nguyễn Hữu Thọ, Hòa Thuận Nam",
+              "rating": 4.2,
+              "coordinates": {
+                "lat": 16.055376,
+                "lng": 108.2086586
+              },
+              "type": "health",
+              "category": "general",
+              "finalScore": 133.3,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 84.00000000000001,
+                "distanceScore": 49.30136609239089
+              }
+            },
+            {
+              "id": "google_ChIJP_viRLgZQjERu4_Cb1lN_1Q",
+              "source": "google",
+              "isPartner": false,
+              "name": "King Garden Hotel Da Nang",
+              "address": "456A Đường Nguyễn Tri Phương, Hòa Thuận Nam",
+              "description": "456A Đường Nguyễn Tri Phương, Hòa Thuận Nam",
+              "rating": 4.2,
+              "coordinates": {
+                "lat": 16.0515234,
+                "lng": 108.2114104
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 132.97,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 84.00000000000001,
+                "distanceScore": 48.965113116712125
+              }
+            },
+            {
+              "id": "google_ChIJ1QZHRbcZQjERrSuSxfM3ZgA",
+              "source": "google",
+              "isPartner": false,
+              "name": "Phan Gia Motel",
+              "address": "57 Nguyễn Hữu Thọ, Hòa Thuận Nam",
+              "description": "57 Nguyễn Hữu Thọ, Hòa Thuận Nam",
+              "rating": 4.1,
+              "coordinates": {
+                "lat": 16.0544834,
+                "lng": 108.2088923
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 131.28,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 82,
+                "distanceScore": 49.28481238778985
+              }
+            },
+            {
+              "id": "google_ChIJK8zax7kZQjERCiWaW3KLyns",
+              "source": "google",
+              "isPartner": false,
+              "name": "Bamboo Hotel",
+              "address": "418 Đường Nguyễn Tri Phương",
+              "description": "418 Đường Nguyễn Tri Phương",
+              "rating": 4.1,
+              "coordinates": {
+                "lat": 16.0524174,
+                "lng": 108.2102646
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 131.11,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 82,
+                "distanceScore": 49.11047537295895
+              }
+            },
+            {
+              "id": "google_ChIJoUrNILEZQjERUdxd4UFy_qg",
+              "source": "google",
+              "isPartner": false,
+              "name": "Công Ty Cp Chuyển Phát Nhanh Quốc Tế Việt",
+              "address": "61 Đường Nguyễn Tri Phương, Thạc Gián",
+              "description": "61 Đường Nguyễn Tri Phương, Thạc Gián",
+              "rating": 4,
+              "coordinates": {
+                "lat": 16.0568011,
+                "lng": 108.2072824
+              },
+              "type": "point_of_interest",
+              "category": "general",
+              "finalScore": 129.39,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 80,
+                "distanceScore": 49.394827311784304
+              }
+            },
+            {
+              "id": "google_ChIJdXII5LYZQjERG7OVFMuT4ns",
+              "source": "google",
+              "isPartner": false,
+              "name": "Khách Sạn Hương Lài",
+              "address": "77 Đường Phạm Văn Nghị, Thạc Gián",
+              "description": "77 Đường Phạm Văn Nghị, Thạc Gián",
+              "rating": 4,
+              "coordinates": {
+                "lat": 16.0567553,
+                "lng": 108.2101821
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 129.11,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 80,
+                "distanceScore": 49.107749354408114
+              }
+            },
+            {
+              "id": "google_ChIJFTMT5a8ZQjER_GqUyRos_f4",
+              "source": "google",
+              "isPartner": false,
+              "name": "PHỞ 24 - ĐÀ NẴNG",
+              "address": "Duy Tân, Quầy B, Sân Bay Quốc Nội Đà Nẵng, Duy Tân, Hòa Thuận Tây",
+              "description": "Duy Tân, Quầy B, Sân Bay Quốc Nội Đà Nẵng, Duy Tân, Hòa Thuận Tây",
+              "rating": 3.8,
+              "coordinates": {
+                "lat": 16.0533386,
+                "lng": 108.2024189
+              },
+              "type": "restaurant",
+              "category": "general",
+              "finalScore": 125.88,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 76,
+                "distanceScore": 49.87968201763554
+              }
+            },
+            {
+              "id": "google_ChIJPQw247sZQjERXlCopH3mlEc",
+              "source": "google",
+              "isPartner": false,
+              "name": "Cafe VIP Vườn",
+              "address": "34 Nguyễn Hữu Thọ, Hòa Thuận Nam",
+              "description": "34 Nguyễn Hữu Thọ, Hòa Thuận Nam",
+              "rating": 3.8,
+              "coordinates": {
+                "lat": 16.0553013,
+                "lng": 108.2086607
+              },
+              "type": "cafe",
+              "category": "general",
+              "finalScore": 125.3,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 76,
+                "distanceScore": 49.30238591715239
+              }
+            },
+            {
+              "id": "google_ChIJF2Dgfv8YQjERfDtZ8bjXv_U",
+              "source": "google",
+              "isPartner": false,
+              "name": "DN Quảng Cáo & TTNT Lê Nguyễn",
+              "address": "146 Duy Tân, Hòa Thuận Nam",
+              "description": "146 Duy Tân, Hòa Thuận Nam",
+              "rating": 3.7,
+              "coordinates": {
+                "lat": 16.0521561,
+                "lng": 108.2070344
+              },
+              "type": "point_of_interest",
+              "category": "general",
+              "finalScore": 123.43,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 74,
+                "distanceScore": 49.426301946821816
+              }
+            },
+            {
+              "id": "google_ChIJAYkYfLEZQjEReED6J_FH7yg",
+              "source": "google",
+              "isPartner": false,
+              "name": "Nhà Hàng Cơm Niêu Hồng Phúc",
+              "address": "166 Đường Nguyễn Tri Phương, Thạc Gián",
+              "description": "166 Đường Nguyễn Tri Phương, Thạc Gián",
+              "rating": 3.7,
+              "coordinates": {
+                "lat": 16.0598851,
+                "lng": 108.2053559
+              },
+              "type": "restaurant",
+              "category": "general",
+              "finalScore": 123.3,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 74,
+                "distanceScore": 49.30306361730379
+              }
+            },
+            {
+              "id": "google_ChIJpVpNgLgZQjERjh1kYwE5rQ8",
+              "source": "google",
+              "isPartner": false,
+              "name": "Nibika Hotel",
+              "address": "418 Đường Nguyễn Tri Phương, Bình Thuận",
+              "description": "418 Đường Nguyễn Tri Phương, Bình Thuận",
+              "rating": 3.7,
+              "coordinates": {
+                "lat": 16.0524174,
+                "lng": 108.2102646
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 123.11,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 74,
+                "distanceScore": 49.11047537295895
+              }
+            },
+            {
+              "id": "google_ChIJES4piDT_QTERFDqlU7kGp4g",
+              "source": "google",
+              "isPartner": false,
+              "name": "PVOIL CHXD HÀ NHA",
+              "address": "Thôn Lam Phụng",
+              "description": "Thôn Lam Phụng",
+              "rating": 3.6,
+              "coordinates": {
+                "lat": 16.0544068,
+                "lng": 108.2021667
+              },
+              "type": "gas_station",
+              "category": "general",
+              "finalScore": 122,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 72,
+                "distanceScore": 49.996362171310885
+              }
+            },
+            {
+              "id": "google_ChIJE8tS3GIXQjERTxoxcBY9wpc",
+              "source": "google",
+              "isPartner": false,
+              "name": "Go On Group",
+              "address": "19 Đường Nguyễn Tri Phương, Bình Thuận",
+              "description": "19 Đường Nguyễn Tri Phương, Bình Thuận",
+              "rating": 2.8,
+              "coordinates": {
+                "lat": 16.0568179,
+                "lng": 108.2069352
+              },
+              "type": "point_of_interest",
+              "category": "general",
+              "finalScore": 105.43,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 55.99999999999999,
+                "distanceScore": 49.42701406859585
+              }
+            },
+            {
+              "id": "google_ChIJHUNyKbcZQjERGlUejzop58I",
+              "source": "google",
+              "isPartner": false,
+              "name": "Bỏ",
+              "address": "152 Hàm Nghi, Thạc Gián",
+              "description": "152 Hàm Nghi, Thạc Gián",
+              "rating": 2.8,
+              "coordinates": {
+                "lat": 16.0568188,
+                "lng": 108.2076285
+              },
+              "type": "electronics_store",
+              "category": "general",
+              "finalScore": 105.36,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 55.99999999999999,
+                "distanceScore": 49.36060383994466
+              }
+            },
+            {
+              "id": "google_ChIJA4mKG6fdaTERFi2pORxmoVQ",
+              "source": "google",
+              "isPartner": false,
+              "name": "PVOIL CHXD KỲ LÝ",
+              "address": "Thôn Đàn",
+              "description": "Thôn Đàn",
+              "rating": 2.5,
+              "coordinates": {
+                "lat": 16.0544068,
+                "lng": 108.2021667
+              },
+              "type": "gas_station",
+              "category": "general",
+              "finalScore": 100,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 50,
+                "distanceScore": 49.996362171310885
+              }
+            },
+            {
+              "id": "google_ChIJnTLrFbEZQjERC9kFIjNn-Yc",
+              "source": "google",
+              "isPartner": false,
+              "name": "Delistay",
+              "address": "21 Đường Nguyễn Tri Phương, Thạc Gián",
+              "description": "21 Đường Nguyễn Tri Phương, Thạc Gián",
+              "coordinates": {
+                "lat": 16.0580041,
+                "lng": 108.2065346
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 49.39,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 0,
+                "distanceScore": 49.38750852256244
+              }
+            },
+            {
+              "id": "google_ChIJbwtIybUZQjERp62lPzB1byw",
+              "source": "google",
+              "isPartner": false,
+              "name": "Thạc Gián",
+              "address": "Thạc Gián",
+              "description": "Thạc Gián",
+              "coordinates": {
+                "lat": 16.0600011,
+                "lng": 108.2110535
+              },
+              "type": "sublocality_level_1",
+              "category": "general",
+              "finalScore": 48.87,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 0,
+                "distanceScore": 48.86733944736673
+              }
+            },
+            {
+              "id": "google_ChIJEyolkscZQjERh2RDRKDjFPw",
+              "source": "google",
+              "isPartner": false,
+              "name": "Đà Nẵng",
+              "address": "Đà Nẵng",
+              "description": "Đà Nẵng",
+              "coordinates": {
+                "lat": 16.0599691,
+                "lng": 108.211111
+              },
+              "type": "locality",
+              "category": "general",
+              "finalScore": 48.86,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 0,
+                "distanceScore": 48.86414618538069
+              }
+            }
+          ],
+          "coordinates": [],
+          "hasLocationData": true
+        }
+      }
+    },
+    "itinerary_generation": {
+      "description": "Itinerary generation - AI creates detailed trip plan with coordinates",
+      "request": {
+        "message": "Tôi muốn đi Vũng Tàu 2 ngày, 3 người, thích biển",
+        "userId": "fe-integration-test-itinerary"
+      },
+      "response": {
+        "success": true,
+        "data": {
+          "response": "🗓️ **Lịch trình 2 ngày tại vũng tàu**\n\n📅 **Ngày 1: Ngày 1: Chinh Phục Hải Đăng và Khám Phá Bãi Sau**\n⏰ 08:00\n   Thưởng thức bữa sáng với các món đặc sản Vũng Tàu như bánh khọt, bún riêu cua.\n   📍 Quán ăn địa phương\n⏰ 09:00\n   Leo lên ngọn Hải Đăng cổ kính, ngắm nhìn toàn cảnh Vũng Tàu từ trên cao và tìm hiểu về lịch sử của ngọn hải đăng.\n   📍 Hải đăng Vũng Tàu\n⏰ 11:00\n   Leo núi và chiêm ngưỡng tượng Chúa Kitô Vua. Lưu ý trang phục kín đáo.\n   📍 Tượng Chúa Kitô Vua\n⏰ 13:00\n   Thưởng thức hải sản tươi ngon tại nhà hàng sang trọng với view biển đẹp.\n   📍 Hải Sản Hoàng Gia Vũng Tàu\n⏰ 15:00\n   Tham gia các trò chơi cảm giác mạnh và khu vui chơi thiếu nhi đa dạng.\n   📍 Công viên Thỏ Trắng Vũng Tàu\n⏰ 18:00\n   Chọn một nhà hàng ven biển, thưởng thức hải sản và tận hưởng không khí biển về đêm.\n   📍 Nhà hàng dọc Bãi Sau\n\n📅 **Ngày 2: Ngày 2: Khám Phá Văn Hóa và Thiên Nhiên Hoang Sơ**\n⏰ 08:00\n   Thưởng thức bữa sáng với các món đặc sản Vũng Tàu như bánh canh Long Hương, bún mắm.\n   📍 Quán ăn địa phương\n⏰ 09:00\n   Tìm hiểu về tín ngưỡng thờ Cá Ông của ngư dân địa phương và chiêm ngưỡng bộ xương cá voi khổng lồ.\n   📍 Lăng Cá Ông Thắng Tam\n⏰ 10:30\n   Chụp ảnh tại Cổng Trời nổi tiếng và ngắm nhìn cảnh biển hùng vĩ.\n   📍 Mũi Nghinh Phong\n⏰ 12:00\n   Mua hải sản tươi sống tại chợ và nhờ các quán ăn lân cận chế biến.\n   📍 Chợ Xóm Lưới\n⏰ 14:00\n   Tận hưởng không gian thoáng đãng, bãi biển trong xanh và thư giãn.\n   📍 Khu Du Lịch Gió Biển Vũng Tàu\n⏰ 17:00\n   Chọn mua các món quà lưu niệm đặc trưng của Vũng Tàu.\n   📍 Chợ Vũng Tàu\n⏰ 18:00\n   Thưởng thức bữa tối cuối cùng tại Vũng Tàu.\n   📍 Nhà hàng địa phương\n\n💡 **Ghi chú:** Lịch trình này em đã tối ưu hóa dựa trên sở thích và thời gian của anh/chị rồi nhé!\n\n💫 Với lịch trình này, anh/chị thấy phù hợp chưa? Hay em cần thêm hoặc bớt ngày nào không nè?",
+          "conversationId": "conv_1759809091752_o8nds5zli",
+          "timestamp": "2025-10-07T03:51:31.818Z",
+          "hasItineraryContext": false,
+          "hasContext": false,
+          "contextLength": 0,
+          "suggestions": [
+            "Chỉnh sửa lịch trình",
+            "Thêm địa điểm khác",
+            "Tìm nhà hàng gần đó",
+            "Xem chi tiết trên bản đồ"
+          ],
+          "locations": [
+            {
+              "id": "itinerary_day1_act1",
+              "source": "itinerary",
+              "isPartner": false,
+              "address": "Quán ăn địa phương",
+              "description": "Thưởng thức bữa sáng với các món đặc sản Vũng Tàu như bánh khọt, bún riêu cua.",
+              "coordinates": {
+                "lat": 16.0787674,
+                "lng": 108.2150236
+              },
+              "type": "activity",
+              "category": "itinerary",
+              "rating": null,
+              "time": "08:00",
+              "day": 1
+            },
+            {
+              "id": "itinerary_day1_act2",
+              "source": "itinerary",
+              "isPartner": false,
+              "address": "Hải đăng Vũng Tàu",
+              "description": "Leo lên ngọn Hải Đăng cổ kính, ngắm nhìn toàn cảnh Vũng Tàu từ trên cao và tìm hiểu về lịch sử của ngọn hải đăng.",
+              "coordinates": {
+                "lat": 10.3366991,
+                "lng": 107.0770099
+              },
+              "type": "activity",
+              "category": "itinerary",
+              "rating": null,
+              "time": "09:00",
+              "day": 1
+            },
+            {
+              "id": "itinerary_day1_act3",
+              "source": "itinerary",
+              "isPartner": false,
+              "address": "Tượng Chúa Kitô Vua",
+              "description": "Leo núi và chiêm ngưỡng tượng Chúa Kitô Vua. Lưu ý trang phục kín đáo.",
+              "coordinates": {
+                "lat": 10.3264876,
+                "lng": 107.0845549
+              },
+              "type": "activity",
+              "category": "itinerary",
+              "rating": null,
+              "time": "11:00",
+              "day": 1
+            },
+            {
+              "id": "itinerary_day1_act4",
+              "source": "itinerary",
+              "isPartner": false,
+              "address": "Hải Sản Hoàng Gia Vũng Tàu",
+              "description": "Thưởng thức hải sản tươi ngon tại nhà hàng sang trọng với view biển đẹp.",
+              "coordinates": {
+                "lat": 10.4113797,
+                "lng": 107.136224
+              },
+              "type": "activity",
+              "category": "itinerary",
+              "rating": null,
+              "time": "13:00",
+              "day": 1
+            },
+            {
+              "id": "itinerary_day1_act5",
+              "source": "itinerary",
+              "isPartner": false,
+              "address": "Công viên Thỏ Trắng Vũng Tàu",
+              "description": "Tham gia các trò chơi cảm giác mạnh và khu vui chơi thiếu nhi đa dạng.",
+              "coordinates": {
+                "lat": 10.3520043,
+                "lng": 107.1011625
+              },
+              "type": "activity",
+              "category": "itinerary",
+              "rating": null,
+              "time": "15:00",
+              "day": 1
+            },
+            {
+              "id": "itinerary_day1_act6",
+              "source": "itinerary",
+              "isPartner": false,
+              "address": "Nhà hàng dọc Bãi Sau",
+              "description": "Chọn một nhà hàng ven biển, thưởng thức hải sản và tận hưởng không khí biển về đêm.",
+              "coordinates": {
+                "lat": 10.34612096087692,
+                "lng": 107.1000134770136
+              },
+              "type": "activity",
+              "category": "itinerary",
+              "rating": null,
+              "time": "18:00",
+              "day": 1
+            },
+            {
+              "id": "itinerary_day2_act1",
+              "source": "itinerary",
+              "isPartner": false,
+              "address": "Quán ăn địa phương",
+              "description": "Thưởng thức bữa sáng với các món đặc sản Vũng Tàu như bánh canh Long Hương, bún mắm.",
+              "coordinates": {
+                "lat": 16.0787674,
+                "lng": 108.2150236
+              },
+              "type": "activity",
+              "category": "itinerary",
+              "rating": null,
+              "time": "08:00",
+              "day": 2
+            },
+            {
+              "id": "itinerary_day2_act2",
+              "source": "itinerary",
+              "isPartner": false,
+              "address": "Lăng Cá Ông Thắng Tam",
+              "description": "Tìm hiểu về tín ngưỡng thờ Cá Ông của ngư dân địa phương và chiêm ngưỡng bộ xương cá voi khổng lồ.",
+              "coordinates": {
+                "lat": 10.3434329,
+                "lng": 107.0914726
+              },
+              "type": "activity",
+              "category": "itinerary",
+              "rating": null,
+              "time": "09:00",
+              "day": 2
+            },
+            {
+              "id": "itinerary_day2_act3",
+              "source": "itinerary",
+              "isPartner": false,
+              "address": "Mũi Nghinh Phong",
+              "description": "Chụp ảnh tại Cổng Trời nổi tiếng và ngắm nhìn cảnh biển hùng vĩ.",
+              "coordinates": {
+                "lat": 10.3219444,
+                "lng": 107.0836111
+              },
+              "type": "activity",
+              "category": "itinerary",
+              "rating": null,
+              "time": "10:30",
+              "day": 2
+            },
+            {
+              "id": "itinerary_day2_act4",
+              "source": "itinerary",
+              "isPartner": false,
+              "address": "Chợ Xóm Lưới",
+              "description": "Mua hải sản tươi sống tại chợ và nhờ các quán ăn lân cận chế biến.",
+              "coordinates": {
+                "lat": 10.3419628,
+                "lng": 107.0770736
+              },
+              "type": "activity",
+              "category": "itinerary",
+              "rating": null,
+              "time": "12:00",
+              "day": 2
+            },
+            {
+              "id": "itinerary_day2_act5",
+              "source": "itinerary",
+              "isPartner": false,
+              "address": "Khu Du Lịch Gió Biển Vũng Tàu",
+              "description": "Tận hưởng không gian thoáng đãng, bãi biển trong xanh và thư giãn.",
+              "coordinates": {
+                "lat": 10.3456864,
+                "lng": 107.097182
+              },
+              "type": "activity",
+              "category": "itinerary",
+              "rating": null,
+              "time": "14:00",
+              "day": 2
+            },
+            {
+              "id": "itinerary_day2_act6",
+              "source": "itinerary",
+              "isPartner": false,
+              "address": "Chợ Vũng Tàu",
+              "description": "Chọn mua các món quà lưu niệm đặc trưng của Vũng Tàu.",
+              "coordinates": {
+                "lat": 10.3478215,
+                "lng": 107.0863738
+              },
+              "type": "activity",
+              "category": "itinerary",
+              "rating": null,
+              "time": "17:00",
+              "day": 2
+            },
+            {
+              "id": "itinerary_day2_act7",
+              "source": "itinerary",
+              "isPartner": false,
+              "address": "Nhà hàng địa phương",
+              "description": "Thưởng thức bữa tối cuối cùng tại Vũng Tàu.",
+              "coordinates": {
+                "lat": 16.4699058,
+                "lng": 107.5969836
+              },
+              "type": "activity",
+              "category": "itinerary",
+              "rating": null,
+              "time": "18:00",
+              "day": 2
+            }
+          ],
+          "coordinates": [],
+          "hasLocationData": true
+        }
+      }
+    },
+    "follow_up_with_context": {
+      "description": "Follow-up message - AI remembers context and provides relevant response",
+      "request": {
+        "message": "Thêm địa điểm cho trẻ em nữa",
+        "userId": "fe-integration-test-itinerary",
+        "conversationId": "conv_1759809091752_o8nds5zli"
+      },
+      "response": {
+        "success": true,
+        "data": {
+          "response": "🌟 Tôi tìm thấy 22 địa điểm tuyệt vời cho bạn dựa trên yêu cầu của bạn.\n\n💡 **Những gì tôi có thể giúp bạn:**\n- Xem chi tiết từng địa điểm trên bản đồ\n- Lên kế hoạch lịch trình chi tiết\n- Tìm nhà hàng và khách sạn gần các địa điểm này\n- Tư vấn thời gian tham quan và di chuyển\n\nBạn có muốn tôi tư vấn thêm về lịch trình hoặc các hoạt động cụ thể không?",
+          "conversationId": "conv_1759809091752_o8nds5zli",
+          "timestamp": "2025-10-07T03:51:35.958Z",
+          "hasItineraryContext": false,
+          "hasContext": true,
+          "contextLength": 4,
+          "suggestions": [
+            "Xem thêm địa điểm khác",
+            "Lên kế hoạch chi tiết",
+            "Tìm nhà hàng gần đó"
+          ],
+          "locations": [
+            {
+              "id": "pinecone_partner_vt_seafood_palace",
+              "source": "partner",
+              "isPartner": true,
+              "name": "Hải Sản Hoàng Gia Vũng Tàu",
+              "address": "Nhà hàng hải sản cao cấp với hải sản tươi sống, view biển đẹp và không gian sang trọng",
+              "description": "Nhà hàng hải sản cao cấp với hải sản tươi sống, view biển đẹp và không gian sang trọng",
+              "rating": 4.7,
+              "coordinates": {
+                "lat": 10.3456,
+                "lng": 107.0934
+              },
+              "type": "place",
+              "category": "food",
+              "finalScore": 1194,
+              "scoreBreakdown": {
+                "partnerBonus": 1000,
+                "priorityScore": 100,
+                "ratingScore": 94,
+                "distanceScore": 0
+              }
+            },
+            {
+              "id": "pinecone_partner_vt_seaside_resort",
+              "source": "partner",
+              "isPartner": true,
+              "name": "Vũng Tàu Seaside Resort & Spa",
+              "address": "Resort nghỉ dưỡng biển với spa cao cấp, bể bơi vô cực và nhà hàng hải sản tươi sống",
+              "description": "Resort nghỉ dưỡng biển với spa cao cấp, bể bơi vô cực và nhà hàng hải sản tươi sống",
+              "rating": 4.6,
+              "coordinates": {
+                "lat": 10.3421,
+                "lng": 107.0923
+              },
+              "type": "place",
+              "category": "accommodation",
+              "finalScore": 1182,
+              "scoreBreakdown": {
+                "partnerBonus": 1000,
+                "priorityScore": 90,
+                "ratingScore": 92,
+                "distanceScore": 0
+              }
+            },
+            {
+              "id": "google_ChIJY6ZL0murNTERzkd-caTZ_5g",
+              "source": "google",
+              "isPartner": false,
+              "name": "Luxury Apartment@LilyhometelHongkongtower",
+              "address": "595 Phố Kim Mã, Ngọc Khánh",
+              "description": "595 Phố Kim Mã, Ngọc Khánh",
+              "rating": 5,
+              "coordinates": {
+                "lat": 21.029369,
+                "lng": 105.8087911
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 100,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 100,
+                "distanceScore": 0
+              }
+            },
+            {
+              "id": "google_ChIJq6oa5murNTER8aIvAsoQfLM",
+              "source": "google",
+              "isPartner": false,
+              "name": "Apartment Kim Ma",
+              "address": "ngõ 535 Phố Kim Mã, Ngọc Khánh",
+              "description": "ngõ 535 Phố Kim Mã, Ngọc Khánh",
+              "rating": 5,
+              "coordinates": {
+                "lat": 21.02933909999999,
+                "lng": 105.8102709
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 100,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 100,
+                "distanceScore": 0
+              }
+            },
+            {
+              "id": "google_ChIJne3U7GyrNTERehxJ0VO9C6o",
+              "source": "google",
+              "isPartner": false,
+              "name": "Lotte Hotel Hanoi",
+              "address": "54 Phố Liễu Giai, Cống Vị",
+              "description": "54 Phố Liễu Giai, Cống Vị",
+              "rating": 4.6,
+              "coordinates": {
+                "lat": 21.0318761,
+                "lng": 105.8123032
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 92,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 92,
+                "distanceScore": 0
+              }
+            },
+            {
+              "id": "google_ChIJ06cj-WmrNTERHbuOiutGSAw",
+              "source": "google",
+              "isPartner": false,
+              "name": "Khách sạn Hà Nội Daewoo",
+              "address": "360 Phố Kim Mã",
+              "description": "360 Phố Kim Mã",
+              "rating": 4.4,
+              "coordinates": {
+                "lat": 21.030832,
+                "lng": 105.8117912
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 88,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 88.00000000000001,
+                "distanceScore": 0
+              }
+            },
+            {
+              "id": "google_ChIJh8yZYEarNTERoVhozmweQ7s",
+              "source": "google",
+              "isPartner": false,
+              "name": "Bao Son International Hotel",
+              "address": "50 Đường Nguyễn Chí Thanh, Láng Thượng",
+              "description": "50 Đường Nguyễn Chí Thanh, Láng Thượng",
+              "rating": 4.1,
+              "coordinates": {
+                "lat": 21.0244844,
+                "lng": 105.8104816
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 82,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 82,
+                "distanceScore": 0
+              }
+            },
+            {
+              "id": "google_ChIJA1W1b0CrNTERTNA4lFaqCyM",
+              "source": "google",
+              "isPartner": false,
+              "name": "Ngoc Huyền hotel",
+              "address": "14B Ngõ 111 Phố Quan Hoa, Quan Hoa",
+              "description": "14B Ngõ 111 Phố Quan Hoa, Quan Hoa",
+              "rating": 4,
+              "coordinates": {
+                "lat": 21.0343148,
+                "lng": 105.803542
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 80,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 80,
+                "distanceScore": 0
+              }
+            },
+            {
+              "id": "google_ChIJDzQYSGurNTERUY-0X409hJk",
+              "source": "google",
+              "isPartner": false,
+              "name": "Apec 2 Hotel",
+              "address": "67 Phố Linh Lang, Cống Vị",
+              "description": "67 Phố Linh Lang, Cống Vị",
+              "rating": 3.7,
+              "coordinates": {
+                "lat": 21.0338512,
+                "lng": 105.8100822
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 74,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 74,
+                "distanceScore": 0
+              }
+            },
+            {
+              "id": "google_ChIJ9VOH3m-rNTERakpoz4C5Svo",
+              "source": "google",
+              "isPartner": false,
+              "name": "Ngoc Khanh House",
+              "address": "80 Phố Phạm Huy Thông, Ngọc Khánh",
+              "description": "80 Phố Phạm Huy Thông, Ngọc Khánh",
+              "rating": 3.6,
+              "coordinates": {
+                "lat": 21.0268801,
+                "lng": 105.8102465
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 72,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 72,
+                "distanceScore": 0
+              }
+            },
+            {
+              "id": "google_ChIJaX_I9jirNTERYaIUI-qV-40",
+              "source": "google",
+              "isPartner": false,
+              "name": "Khách Sạn Giá Rẻ Cầu Giấy - Mely Hotel 2",
+              "address": "B24, Ngõ 57 Nguyễn Khánh Toàn",
+              "description": "B24, Ngõ 57 Nguyễn Khánh Toàn",
+              "rating": 3.5,
+              "coordinates": {
+                "lat": 21.0377935,
+                "lng": 105.7968378
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 70,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 70,
+                "distanceScore": 0
+              }
+            },
+            {
+              "id": "google_ChIJ1W3IKWqrNTEREVvpAtIE0v4",
+              "source": "google",
+              "isPartner": false,
+              "name": "Sakamoto 2 Apartments by XÔI Residences",
+              "address": "Phố Kim Mã, 18 Ngách 535/2, Phố Kim Mã, Ngọc Khánh",
+              "description": "Phố Kim Mã, 18 Ngách 535/2, Phố Kim Mã, Ngọc Khánh",
+              "rating": 3.5,
+              "coordinates": {
+                "lat": 21.0287572,
+                "lng": 105.8101268
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 70,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 70,
+                "distanceScore": 0
+              }
+            },
+            {
+              "id": "google_ChIJqQREvTGrNTERVTU89rYiH54",
+              "source": "google",
+              "isPartner": false,
+              "name": "26 Phạm Huy Thông",
+              "address": "2RH5+7XH, Phố Phạm Huy Thông",
+              "description": "2RH5+7XH, Phố Phạm Huy Thông",
+              "rating": 3.3,
+              "coordinates": {
+                "lat": 21.0281805,
+                "lng": 105.8099734
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 66,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 65.99999999999999,
+                "distanceScore": 0
+              }
+            },
+            {
+              "id": "google_ChIJE3WOiUOrNTERlkeyw3DqJrU",
+              "source": "google",
+              "isPartner": false,
+              "name": "OYO 417 Sun Hotel",
+              "address": "No.5, Lane 1160, Lang street Hanoi Thai Nguyen Province",
+              "description": "No.5, Lane 1160, Lang street Hanoi Thai Nguyen Province",
+              "rating": 3.2,
+              "coordinates": {
+                "lat": 21.026547,
+                "lng": 105.7990827
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 64,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 64,
+                "distanceScore": 0
+              }
+            },
+            {
+              "id": "google_ChIJA1W1b0CrNTERT9T_8t9kzJQ",
+              "source": "google",
+              "isPartner": false,
+              "name": "B & B Hotel Quan Hoa",
+              "address": "7 Ngõ 111 Phố Quan Hoa, Quan Hoa",
+              "description": "7 Ngõ 111 Phố Quan Hoa, Quan Hoa",
+              "rating": 3.2,
+              "coordinates": {
+                "lat": 21.0342288,
+                "lng": 105.8034748
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 64,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 64,
+                "distanceScore": 0
+              }
+            },
+            {
+              "id": "google_ChIJoRyG2ZurNTERqRfKcnt_iOc",
+              "source": "google",
+              "isPartner": false,
+              "name": "Hà Nội",
+              "address": "Hà Nội",
+              "description": "Hà Nội",
+              "coordinates": {
+                "lat": 21.0277644,
+                "lng": 105.8341598
+              },
+              "type": "locality",
+              "category": "general",
+              "finalScore": 0,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 0,
+                "distanceScore": 0
+              }
+            },
+            {
+              "id": "google_ChIJKwFg6GqrNTERriTbIteGCrs",
+              "source": "google",
+              "isPartner": false,
+              "name": "Honoi Homestay",
+              "address": "Phố Đào Tấn/58 Ba Dinh 3C, Ngọc Khánh",
+              "description": "Phố Đào Tấn/58 Ba Dinh 3C, Ngọc Khánh",
+              "coordinates": {
+                "lat": 21.0330748,
+                "lng": 105.8076575
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 0,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 0,
+                "distanceScore": 0
+              }
+            },
+            {
+              "id": "google_ChIJjZFOsRSrNTERgAKPapR8lY4",
+              "source": "google",
+              "isPartner": false,
+              "name": "Friendly House PKB",
+              "address": "33 Phố Phan Kế Bính, Cống Vị",
+              "description": "33 Phố Phan Kế Bính, Cống Vị",
+              "coordinates": {
+                "lat": 21.0354706,
+                "lng": 105.8087203
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 0,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 0,
+                "distanceScore": 0
+              }
+            },
+            {
+              "id": "google_ChIJ6YQQOmurNTERqhYNP9lOE-0",
+              "source": "google",
+              "isPartner": false,
+              "name": "Sophie Golden Building",
+              "address": "34 Ngõ 35 Phan Kế Bính, Cống Vị",
+              "description": "34 Ngõ 35 Phan Kế Bính, Cống Vị",
+              "coordinates": {
+                "lat": 21.0337419,
+                "lng": 105.8095352
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 0,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 0,
+                "distanceScore": 0
+              }
+            },
+            {
+              "id": "google_ChIJq6qusRSrNTERnTEpxpLCxbI",
+              "source": "google",
+              "isPartner": false,
+              "name": "GRiD Hotel",
+              "address": "56 Phố Phan Kế Bính, Cống Vị",
+              "description": "56 Phố Phan Kế Bính, Cống Vị",
+              "coordinates": {
+                "lat": 21.0349538,
+                "lng": 105.8105491
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 0,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 0,
+                "distanceScore": 0
+              }
+            },
+            {
+              "id": "google_ChIJ66fk42RncDERYyXYiBRp1v0",
+              "source": "google",
+              "isPartner": false,
+              "name": "SPOT ON 940 Phuc Loc Canh Guesthouse",
+              "address": "56 Phố Phan Kế Bính, Cống Vị",
+              "description": "56 Phố Phan Kế Bính, Cống Vị",
+              "coordinates": {
+                "lat": 21.0349538,
+                "lng": 105.8105491
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 0,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 0,
+                "distanceScore": 0
+              }
+            },
+            {
+              "id": "google_ChIJbz9hIKGsNTERICI4KhW4qhE",
+              "source": "google",
+              "isPartner": false,
+              "name": "Trung Hoà",
+              "address": "Trung Hoà",
+              "description": "Trung Hoà",
+              "coordinates": {
+                "lat": 21.0101531,
+                "lng": 105.7988345
+              },
+              "type": "sublocality_level_1",
+              "category": "general",
+              "finalScore": 0,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 0,
+                "distanceScore": 0
+              }
+            }
+          ],
+          "coordinates": [],
+          "hasLocationData": true
+        }
+      }
+    },
+    "food_query": {
+      "description": "Food query - AI returns food places with partner prioritization",
+      "request": {
+        "message": "Ăn gì ngon ở Hội An?",
+        "userId": "fe-integration-test-food"
+      },
+      "response": {
+        "success": true,
+        "data": {
+          "response": "🌟 Tôi tìm thấy 22 địa điểm tuyệt vời cho bạn dựa trên yêu cầu của bạn.\n\n💡 **Những gì tôi có thể giúp bạn:**\n- Xem chi tiết từng địa điểm trên bản đồ\n- Lên kế hoạch lịch trình chi tiết\n- Tìm nhà hàng và khách sạn gần các địa điểm này\n- Tư vấn thời gian tham quan và di chuyển\n\nBạn có muốn tôi tư vấn thêm về lịch trình hoặc các hoạt động cụ thể không?",
+          "conversationId": "conv_1759809098650_xrd1yhlvg",
+          "timestamp": "2025-10-07T03:51:38.716Z",
+          "hasItineraryContext": false,
+          "hasContext": false,
+          "contextLength": 0,
+          "suggestions": [
+            "Xem thêm địa điểm khác",
+            "Lên kế hoạch chi tiết",
+            "Tìm nhà hàng gần đó"
+          ],
+          "locations": [
+            {
+              "id": "pinecone_partner_vt_seafood_palace",
+              "source": "partner",
+              "isPartner": true,
+              "name": "Hải Sản Hoàng Gia Vũng Tàu",
+              "address": "Nhà hàng hải sản cao cấp với hải sản tươi sống, view biển đẹp và không gian sang trọng",
+              "description": "Nhà hàng hải sản cao cấp với hải sản tươi sống, view biển đẹp và không gian sang trọng",
+              "rating": 4.7,
+              "coordinates": {
+                "lat": 10.3456,
+                "lng": 107.0934
+              },
+              "type": "place",
+              "category": "food",
+              "finalScore": 1194,
+              "scoreBreakdown": {
+                "partnerBonus": 1000,
+                "priorityScore": 100,
+                "ratingScore": 94,
+                "distanceScore": 0
+              }
+            },
+            {
+              "id": "pinecone_partner_vt_seaside_resort",
+              "source": "partner",
+              "isPartner": true,
+              "name": "Vũng Tàu Seaside Resort & Spa",
+              "address": "Resort nghỉ dưỡng biển với spa cao cấp, bể bơi vô cực và nhà hàng hải sản tươi sống",
+              "description": "Resort nghỉ dưỡng biển với spa cao cấp, bể bơi vô cực và nhà hàng hải sản tươi sống",
+              "rating": 4.6,
+              "coordinates": {
+                "lat": 10.3421,
+                "lng": 107.0923
+              },
+              "type": "place",
+              "category": "accommodation",
+              "finalScore": 1182,
+              "scoreBreakdown": {
+                "partnerBonus": 1000,
+                "priorityScore": 90,
+                "ratingScore": 92,
+                "distanceScore": 0
+              }
+            },
+            {
+              "id": "google_ChIJ9f6TkMgNQjERAGpL9z9ih6c",
+              "source": "google",
+              "isPartner": false,
+              "name": "Khu nghỉ dưỡng Legacy Hội An",
+              "address": "Cẩm Thanh, Hội An",
+              "description": "Cẩm Thanh, Hội An",
+              "rating": 4.9,
+              "coordinates": {
+                "lat": 15.8833303,
+                "lng": 108.3564323
+              },
+              "type": "spa",
+              "category": "general",
+              "finalScore": 146,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 98.00000000000001,
+                "distanceScore": 47.996200250564854
+              }
+            },
+            {
+              "id": "google_ChIJTd0GRtQNQjERC8RL6J-SwZo",
+              "source": "google",
+              "isPartner": false,
+              "name": "Anantara Hoi An Resort",
+              "address": "1 Đường Phạm Hồng Thái, Cẩm Châu, Hội An",
+              "description": "1 Đường Phạm Hồng Thái, Cẩm Châu, Hội An",
+              "rating": 4.7,
+              "coordinates": {
+                "lat": 15.8772103,
+                "lng": 108.3361561
+              },
+              "type": "spa",
+              "category": "general",
+              "finalScore": 143.62,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 94,
+                "distanceScore": 49.62298818764096
+              }
+            },
+            {
+              "id": "google_ChIJRVwVU3gOQjERtcxxVahq7zA",
+              "source": "google",
+              "isPartner": false,
+              "name": "Family Hotel",
+              "address": "201 Lý Thường Kiệt, Phường, Hội An",
+              "description": "201 Lý Thường Kiệt, Phường, Hội An",
+              "rating": 4.7,
+              "coordinates": {
+                "lat": 15.8837897,
+                "lng": 108.3264892
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 142.7,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 94,
+                "distanceScore": 48.7023504620306
+              }
+            },
+            {
+              "id": "google_ChIJ716HzNYNQjERlGDY6mvJBQc",
+              "source": "google",
+              "isPartner": false,
+              "name": "Hadana Boutique Resort Hoi An",
+              "address": "538 Cửa Đại, Cẩm Châu",
+              "description": "538 Cửa Đại, Cẩm Châu",
+              "rating": 4.6,
+              "coordinates": {
+                "lat": 15.8804083,
+                "lng": 108.3386239
+              },
+              "type": "spa",
+              "category": "general",
+              "finalScore": 141.92,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 92,
+                "distanceScore": 49.924982062328326
+              }
+            },
+            {
+              "id": "google_ChIJhchUhNYNQjERld9eQFml_bs",
+              "source": "google",
+              "isPartner": false,
+              "name": "Vaia Hoi An Boutique Hotel",
+              "address": "489 Cửa Đại, Cẩm Châu, Hội An",
+              "description": "489 Cửa Đại, Cẩm Châu, Hội An",
+              "rating": 4.5,
+              "coordinates": {
+                "lat": 15.8793239,
+                "lng": 108.3362964
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 139.8,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 90,
+                "distanceScore": 49.79839342608205
+              }
+            },
+            {
+              "id": "google_ChIJd2hEc5MNQjERYLHo53B5sU8",
+              "source": "google",
+              "isPartner": false,
+              "name": "Palm Garden Resort - Hoi An",
+              "address": "Lạc Long Quân, Cẩm An, Hội An",
+              "description": "Lạc Long Quân, Cẩm An, Hội An",
+              "rating": 4.6,
+              "coordinates": {
+                "lat": 15.90079969999999,
+                "lng": 108.359024
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 138.78,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 92,
+                "distanceScore": 46.78235118654941
+              }
+            },
+            {
+              "id": "google_ChIJjb4Ah-QRQjERFlzALzxOOvo",
+              "source": "google",
+              "isPartner": false,
+              "name": "Four Seasons Resort The Nam Hai, Hoi An",
+              "address": "Block Ha My, Dong B, Điện Bàn",
+              "description": "Block Ha My, Dong B, Điện Bàn",
+              "rating": 4.7,
+              "coordinates": {
+                "lat": 15.928951,
+                "lng": 108.3174765
+              },
+              "type": "spa",
+              "category": "general",
+              "finalScore": 138.14,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 94,
+                "distanceScore": 44.14138524459793
+              }
+            },
+            {
+              "id": "google_ChIJjyVsyXgOQjERfEc74O2vt1M",
+              "source": "google",
+              "isPartner": false,
+              "name": "Hoi An Historic Hotel",
+              "address": "10 Trần Hưng Đạo, Sơn Phong, Hội An",
+              "description": "10 Trần Hưng Đạo, Sơn Phong, Hội An",
+              "rating": 4.4,
+              "coordinates": {
+                "lat": 15.88049,
+                "lng": 108.3307507
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 137.22,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 88.00000000000001,
+                "distanceScore": 49.223466638754616
+              }
+            },
+            {
+              "id": "google_ChIJG9NlVHoOQjERxgDQay-LZmU",
+              "source": "google",
+              "isPartner": false,
+              "name": "Thiện Thanh hotel",
+              "address": "16 Bà Triệu, Phường Cẩm Phổ, Hội An",
+              "description": "16 Bà Triệu, Phường Cẩm Phổ, Hội An",
+              "rating": 4.4,
+              "coordinates": {
+                "lat": 15.8828474,
+                "lng": 108.3242425
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 136.5,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 88.00000000000001,
+                "distanceScore": 48.49724703241845
+              }
+            },
+            {
+              "id": "google_ChIJYT6diH0OQjERZTtvLhg2zWw",
+              "source": "google",
+              "isPartner": false,
+              "name": "Vinh Hung Riverside Resort & Spa",
+              "address": "111 Ngô Quyền, Phường Minh An, Hội An",
+              "description": "111 Ngô Quyền, Phường Minh An, Hội An",
+              "rating": 4.3,
+              "coordinates": {
+                "lat": 15.8742192,
+                "lng": 108.3245399
+              },
+              "type": "spa",
+              "category": "general",
+              "finalScore": 134.42,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 86,
+                "distanceScore": 48.41884746878673
+              }
+            },
+            {
+              "id": "google_ChIJF1BOkNYNQjERp8-6v66IPsI",
+              "source": "google",
+              "isPartner": false,
+              "name": "Hai Au boutique hotel",
+              "address": "576 Cửa Đại, Cẩm Châu, Hội An",
+              "description": "576 Cửa Đại, Cẩm Châu, Hội An",
+              "rating": 4.2,
+              "coordinates": {
+                "lat": 15.879674,
+                "lng": 108.336424
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 133.82,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 84.00000000000001,
+                "distanceScore": 49.824914955358665
+              }
+            },
+            {
+              "id": "google_ChIJVaP6DpcNQjERfTNC74XL4wk",
+              "source": "google",
+              "isPartner": false,
+              "name": "Hoi An Beach Resort",
+              "address": "1 Cửa Đại, Hội An",
+              "description": "1 Cửa Đại, Hội An",
+              "rating": 4.3,
+              "coordinates": {
+                "lat": 15.8964836,
+                "lng": 108.3671864
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 132.39,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 86,
+                "distanceScore": 46.38586409972788
+              }
+            },
+            {
+              "id": "google_ChIJQ060ywkNQjERl0WKHEm1Zkc",
+              "source": "google",
+              "isPartner": false,
+              "name": "Sunrise Premium Resort Hội An",
+              "address": "Âu Cơ, Cửa Đại, Hội An",
+              "description": "Âu Cơ, Cửa Đại, Hội An",
+              "rating": 4.3,
+              "coordinates": {
+                "lat": 15.8896581,
+                "lng": 108.3785689
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 131.53,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 86,
+                "distanceScore": 45.53293051481584
+              }
+            },
+            {
+              "id": "google_ChIJK5zgW3YOQjER_5t5-8Fmbf4",
+              "source": "google",
+              "isPartner": false,
+              "name": "Khách sạn Ánh Dương",
+              "address": "02 Phan Đình Phùng, Cẩm Sơn, Hội An",
+              "description": "02 Phan Đình Phùng, Cẩm Sơn, Hội An",
+              "rating": 4.1,
+              "coordinates": {
+                "lat": 15.8891068,
+                "lng": 108.3300459
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 130.69,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 82,
+                "distanceScore": 48.685966519710554
+              }
+            },
+            {
+              "id": "google_ChIJH0mIVJ8NQjERP8ZqoZZjHGA",
+              "source": "google",
+              "isPartner": false,
+              "name": "Golden Sand Resort And Spa Hoi An",
+              "address": "Au Co Road, Cua Dai Beach, Hoi An City",
+              "description": "Au Co Road, Cua Dai Beach, Hoi An City",
+              "rating": 4.1,
+              "coordinates": {
+                "lat": 15.892317,
+                "lng": 108.374439
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 127.87,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 82,
+                "distanceScore": 45.87293343381349
+              }
+            },
+            {
+              "id": "google_ChIJ66r3R-MRQjER6_zgWhrVcQI",
+              "source": "google",
+              "isPartner": false,
+              "name": "SBH Le Belhamy Beach Resort",
+              "address": "Biển Hà My",
+              "description": "Biển Hà My",
+              "rating": 4,
+              "coordinates": {
+                "lat": 15.924438,
+                "lng": 108.324551
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 124.86,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 80,
+                "distanceScore": 44.86434138059061
+              }
+            },
+            {
+              "id": "google_ChIJzTAvu30OQjERqDLf7FxBzsI",
+              "source": "google",
+              "isPartner": false,
+              "name": "Khách sạn An Hội",
+              "address": "69 Nguyễn Phúc Chu, Phường Minh An, Hội An",
+              "description": "69 Nguyễn Phúc Chu, Phường Minh An, Hội An",
+              "rating": 3.8,
+              "coordinates": {
+                "lat": 15.8760974,
+                "lng": 108.3246166
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 124.5,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 76,
+                "distanceScore": 48.50101570058186
+              }
+            },
+            {
+              "id": "google_ChIJb3BiruTuaTER4uoua1myQ_U",
+              "source": "google",
+              "isPartner": false,
+              "name": "Thanh Binh Central Hotel",
+              "address": "98 Bà Triệu, Phường Minh An, Hội An",
+              "description": "98 Bà Triệu, Phường Minh An, Hội An",
+              "rating": 3.7,
+              "coordinates": {
+                "lat": 15.8806146,
+                "lng": 108.3261263
+              },
+              "type": "lodging",
+              "category": "general",
+              "finalScore": 122.73,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 74,
+                "distanceScore": 48.72880512647777
+              }
+            },
+            {
+              "id": "google_ChIJezo14dQNQjERo8zfXkM24wo",
+              "source": "google",
+              "isPartner": false,
+              "name": "Thành phố Hội An",
+              "address": "Thành phố Hội An",
+              "description": "Thành phố Hội An",
+              "coordinates": {
+                "lat": 15.8799241,
+                "lng": 108.3267487
+              },
+              "type": "locality",
+              "category": "general",
+              "finalScore": 48.8,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 0,
+                "distanceScore": 48.79649904702925
+              }
+            },
+            {
+              "id": "google_ChIJHWBaf3sOQjERlO-aBCMv5Kk",
+              "source": "google",
+              "isPartner": false,
+              "name": "Phường Cẩm Phô",
+              "address": "Phường Cẩm Phô",
+              "description": "Phường Cẩm Phô",
+              "coordinates": {
+                "lat": 15.8811071,
+                "lng": 108.32372
+              },
+              "type": "sublocality_level_1",
+              "category": "general",
+              "finalScore": 48.47,
+              "scoreBreakdown": {
+                "partnerBonus": 0,
+                "priorityScore": 0,
+                "ratingScore": 0,
+                "distanceScore": 48.46863879956156
+              }
+            }
+          ],
+          "coordinates": [],
+          "hasLocationData": true
+        }
+      }
+    }
+  }
+}

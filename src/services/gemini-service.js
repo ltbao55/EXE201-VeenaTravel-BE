@@ -29,6 +29,49 @@ const ensureInitialized = () => {
   }
 };
 
+// Giới hạn số hoạt động mỗi ngày và ưu tiên giữ lại các bữa ăn
+const normalizeItineraryActivities = (itinerary, activitiesGuide) => {
+  try {
+    if (!itinerary || !Array.isArray(itinerary.days)) return itinerary;
+    const maxActivities = activitiesGuide?.max ?? 6;
+
+    const isMealActivity = (activity) => {
+      const text = `${activity?.activity || ''} ${activity?.location || ''}`.toLowerCase();
+      return (
+        text.includes('ăn sáng') ||
+        text.includes('breakfast') ||
+        text.includes('ăn trưa') ||
+        text.includes('lunch') ||
+        text.includes('ăn tối') ||
+        text.includes('dinner')
+      );
+    };
+
+    const sortByTime = (arr) => {
+      return [...arr].sort((a, b) => {
+        const ta = (a?.time || '23:59');
+        const tb = (b?.time || '23:59');
+        return ta.localeCompare(tb);
+      });
+    };
+
+    itinerary.days.forEach((day) => {
+      if (!Array.isArray(day.activities)) return;
+      if (day.activities.length <= maxActivities) return;
+
+      const meals = day.activities.filter(isMealActivity);
+      const others = day.activities.filter((a) => !isMealActivity(a));
+
+      const ordered = [...sortByTime(meals), ...sortByTime(others)];
+      day.activities = ordered.slice(0, maxActivities);
+    });
+
+    return itinerary;
+  } catch (_) {
+    return itinerary;
+  }
+};
+
 /**
  * Tìm kiếm địa điểm liên quan từ Vector Database (RAG)
  * @param {string} destination - Điểm đến
@@ -171,6 +214,12 @@ ${contextInfo}
    - Thời gian di chuyển giữa các điểm: 15-30 phút
    - Thời gian nghỉ ăn: 1-1.5 giờ
    - Bắt đầu: 8:00-9:00, Kết thúc: 18:00-20:00
+
+   - Bữa sáng (BẮT BUỘC nếu lịch bắt đầu ≥ 07:00): 07:00-08:00, thời lượng 30-60 phút
+   - Bữa trưa (BẮT BUỘC): 11:30-13:30, thời lượng 60-90 phút
+   - Bữa tối (BẮT BUỘC nếu kết thúc sau 17:00): 18:00-20:00, thời lượng 60-90 phút
+   - Nghỉ giữa ngày: 15-30 phút sau mỗi 2-3 hoạt động hoặc sau ăn trưa 30-60 phút
+   - Tổng thời lượng hoạt động mỗi ngày ≤ 12 giờ (không tính nghỉ đêm)
    
 4. **Cân bằng hoạt động:**
    - Sáng: 1-2 địa điểm
@@ -240,10 +289,13 @@ Hãy tạo lịch trình thực tế, chi tiết và phù hợp với Việt Nam
       };
     }
     
+    // Chuẩn hóa: giới hạn số hoạt động/ngày theo activitiesGuide (ưu tiên bữa ăn)
+    const normalizedItinerary = normalizeItineraryActivities(itinerary, activitiesGuide);
+
     return {
       success: true,
       data: {
-        itinerary,
+        itinerary: normalizedItinerary,
         generatedAt: new Date().toISOString(),
         requestInfo: travelRequest
       }
