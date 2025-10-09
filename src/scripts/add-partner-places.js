@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 
+
 /**
  * Script to add test partner places to Pinecone database
  * This will help verify the partner places priority system
