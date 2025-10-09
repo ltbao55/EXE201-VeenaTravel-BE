@@ -12,16 +12,36 @@ export const getAllChatSessions = async (req, res) => {
     
     const query = {};
     
-    if (user) query.user = user;
+    if (user) query.userId = user;
     if (status) query.status = status;
     
     const sessions = await ChatSession.find(query)
-      .populate('user', 'name email avatar')
-      .populate('relatedTrip', 'name startDate endDate')
+      // userId in schema is Mixed (not a ref), so do not populate
+      .populate('generatedTrip', 'name startDate endDate')
       .select('-messages') // Exclude messages for list view
       .sort({ lastActivity: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit);
+    
+    // Debug log: list chat sessions snapshot
+    try {
+      console.log("[ChatSessions][List] total:", sessions.length);
+      console.log(
+        "[ChatSessions][List] items:",
+        sessions.map(s => ({
+          _id: s._id,
+          sessionId: s.sessionId,
+          userId: s.userId,
+          title: s.title,
+          isActive: s.isActive,
+          lastActivity: s.lastActivity,
+          messageCount: s.messageCount,
+          generatedTrip: s.generatedTrip ? s.generatedTrip._id || s.generatedTrip : null
+        }))
+      );
+    } catch (e) {
+      console.warn("[ChatSessions][List] log failed:", e);
+    }
       
     const total = await ChatSession.countDocuments(query);
     
@@ -41,8 +61,7 @@ export const getChatSessionById = async (req, res) => {
   try {
     const { id } = req.params;
     const session = await ChatSession.findById(id)
-      .populate('user', 'name email avatar')
-      .populate('relatedTrip', 'name startDate endDate destinations');
+      .populate('generatedTrip', 'name startDate endDate destinations');
       
     if (!session) {
       return res.status(404).json({ message: "Chat session not found" });
@@ -59,8 +78,7 @@ export const getChatSessionBySessionId = async (req, res) => {
   try {
     const { sessionId } = req.params;
     const session = await ChatSession.findOne({ sessionId })
-      .populate('user', 'name email avatar')
-      .populate('relatedTrip', 'name startDate endDate destinations');
+      .populate('generatedTrip', 'name startDate endDate destinations');
       
     if (!session) {
       return res.status(404).json({ message: "Chat session not found" });
@@ -78,7 +96,7 @@ export const createChatSession = async (req, res) => {
     const sessionData = req.body;
     
     // Validate required fields
-    if (!sessionData.user) {
+    if (!sessionData.userId) {
       return res.status(400).json({ 
         message: "User ID is required" 
       });
@@ -102,7 +120,8 @@ export const createChatSession = async (req, res) => {
     const newSession = await session.save();
     
     const populatedSession = await ChatSession.findById(newSession._id)
-      .populate('user', 'name email avatar');
+      // userId is not a ref, no populate here
+      ;
     
     res.status(201).json(populatedSession);
     
@@ -118,7 +137,7 @@ export const updateChatSession = async (req, res) => {
     const updateData = req.body;
     
     // Don't allow changing user or sessionId
-    delete updateData.user;
+    delete updateData.userId;
     delete updateData.sessionId;
     
     const session = await ChatSession.findByIdAndUpdate(
@@ -126,8 +145,7 @@ export const updateChatSession = async (req, res) => {
       updateData, 
       { new: true, runValidators: true }
     )
-    .populate('user', 'name email avatar')
-    .populate('relatedTrip', 'name startDate endDate');
+    .populate('generatedTrip', 'name startDate endDate');
     
     if (!session) {
       return res.status(404).json({ message: "Chat session not found" });
@@ -170,7 +188,7 @@ export const addMessageToSession = async (req, res) => {
     await session.save();
     
     const updatedSession = await ChatSession.findById(id)
-      .populate('user', 'name email avatar');
+      ;
     
     res.status(200).json(updatedSession);
     
@@ -193,7 +211,7 @@ export const updateSessionContext = async (req, res) => {
       },
       { new: true, runValidators: true }
     )
-    .populate('user', 'name email avatar');
+    ;
     
     if (!session) {
       return res.status(404).json({ message: "Chat session not found" });
@@ -241,15 +259,35 @@ export const getUserChatSessions = async (req, res) => {
     const { userId } = req.params;
     const { status, page = 1, limit = 10 } = req.query;
     
-    const query = { user: userId };
+    const query = { userId };
     if (status) query.status = status;
     
     const sessions = await ChatSession.find(query)
-      .populate('relatedTrip', 'name startDate endDate')
+      .populate('generatedTrip', 'name startDate endDate')
       .select('-messages') // Exclude messages for list view
       .sort({ lastActivity: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit);
+    
+    // Debug log: user chat sessions snapshot
+    try {
+      console.log("[ChatSessions][UserList] userId:", userId, "total:", sessions.length);
+      console.log(
+        "[ChatSessions][UserList] items:",
+        sessions.map(s => ({
+          _id: s._id,
+          sessionId: s.sessionId,
+          userId: s.userId,
+          title: s.title,
+          isActive: s.isActive,
+          lastActivity: s.lastActivity,
+          messageCount: s.messageCount,
+          generatedTrip: s.generatedTrip ? s.generatedTrip._id || s.generatedTrip : null
+        }))
+      );
+    } catch (e) {
+      console.warn("[ChatSessions][UserList] log failed:", e);
+    }
       
     const total = await ChatSession.countDocuments(query);
     
