@@ -1,5 +1,5 @@
 import Place from '../models/Place.js';
-import geocodingService from '../services/googlemaps-service.js';
+import googleMapsService from '../services/googlemaps-service.js';
 
 // Get all places
 export const getAllPlaces = async (req, res) => {
@@ -93,7 +93,7 @@ export const getPlaceById = async (req, res) => {
   }
 };
 
-// Create new place (Admin only) - with automatic geocoding
+// Create new place (Admin only)
 export const createPlace = async (req, res) => {
   try {
     const {
@@ -105,7 +105,8 @@ export const createPlace = async (req, res) => {
       images,
       contact,
       openingHours,
-      priceRange
+      priceRange,
+      location
     } = req.body;
 
     // Validate required fields
@@ -116,48 +117,50 @@ export const createPlace = async (req, res) => {
       });
     }
 
-    // Get coordinates from Google Geocoding API
-    let coordinates;
-    try {
-      coordinates = await geocodingService.getCoordinates(address);
-    } catch (geocodingError) {
-      return res.status(400).json({
-        success: false,
-        message: `Failed to get coordinates: ${geocodingError.message}`
-      });
+    let finalLocation = location;
+
+    // Auto-geocode if location is not provided
+    if (!location && address) {
+      try {
+        const geocodeResult = await googleMapsService.getCoordinates(address);
+        finalLocation = {
+          lat: geocodeResult.lat,
+          lng: geocodeResult.lng
+        };
+        console.log(`Auto-geocoded address "${address}" to coordinates:`, finalLocation);
+      } catch (geocodeError) {
+        console.warn('Failed to geocode address:', geocodeError.message);
+        // Continue without coordinates - not a fatal error
+        finalLocation = null;
+      }
     }
 
-    // Create place with coordinates
-    const place = new Place({
+    // Create place data
+    const placeData = {
       name,
       address,
       description,
       tags: tags || [],
       category: category || 'other',
-      location: {
-        lat: coordinates.lat,
-        lng: coordinates.lng
-      },
       images: images || [],
       contact: contact || {},
       openingHours: openingHours || {},
       priceRange: priceRange || '$$',
       addedBy: req.user._id
-    });
+    };
 
+    // Only add location if it exists
+    if (finalLocation && finalLocation.lat && finalLocation.lng) {
+      placeData.location = finalLocation;
+    }
+
+    const place = new Place(placeData);
     await place.save();
 
     res.status(201).json({
       success: true,
-      message: 'Place created successfully with coordinates',
-      data: place,
-      geocoding: {
-        formatted_address: coordinates.formatted_address,
-        coordinates: {
-          lat: coordinates.lat,
-          lng: coordinates.lng
-        }
-      }
+      message: 'Place created successfully',
+      data: place
     });
   } catch (error) {
     console.error('Create place error:', error);
@@ -168,7 +171,7 @@ export const createPlace = async (req, res) => {
   }
 };
 
-// Update place (Admin only) - re-geocode if address changed
+// Update place (Admin only)
 export const updatePlace = async (req, res) => {
   try {
     const { id } = req.params;
@@ -183,19 +186,20 @@ export const updatePlace = async (req, res) => {
       });
     }
 
-    // If address is being updated, get new coordinates
-    if (updateData.address && updateData.address !== place.address) {
+    // Auto-geocode if address is updated but location is not provided
+    if (updateData.address && !updateData.location && updateData.address !== place.address) {
       try {
-        const coordinates = await geocodingService.getCoordinates(updateData.address);
+        const geocodeResult = await googleMapsService.getCoordinates(updateData.address);
         updateData.location = {
-          lat: coordinates.lat,
-          lng: coordinates.lng
+          type: 'Point',
+          coordinates: [geocodeResult.lng, geocodeResult.lat],
+          lat: geocodeResult.lat,
+          lng: geocodeResult.lng
         };
-      } catch (geocodingError) {
-        return res.status(400).json({
-          success: false,
-          message: `Failed to get coordinates for new address: ${geocodingError.message}`
-        });
+        console.log(`Auto-geocoded updated address "${updateData.address}" to coordinates:`, updateData.location);
+      } catch (geocodeError) {
+        console.warn('Failed to geocode updated address:', geocodeError.message);
+        // Continue without updating coordinates - not a fatal error
       }
     }
 
@@ -287,77 +291,131 @@ export const searchPlacesByLocation = async (req, res) => {
   }
 };
 
-// Batch geocode places without coordinates
+// Batch geocode places (Admin only)
 export const batchGeocodePlaces = async (req, res) => {
   try {
     // Find places without coordinates
     const placesWithoutCoords = await Place.find({
       $or: [
-        { location: { $exists: false } },
         { 'location.lat': { $exists: false } },
-        { 'location.lng': { $exists: false } }
-      ]
+        { 'location.lng': { $exists: false } },
+        { location: null }
+      ],
+      address: { $exists: true, $ne: '' }
     });
 
     if (placesWithoutCoords.length === 0) {
       return res.json({
         success: true,
         message: 'All places already have coordinates',
-        processed: 0
+        data: {
+          processed: 0,
+          successful: 0,
+          failed: 0,
+          results: []
+        }
       });
     }
 
     const results = [];
-    let successCount = 0;
-    let errorCount = 0;
+    let successful = 0;
+    let failed = 0;
 
+    // Process each place
     for (const place of placesWithoutCoords) {
       try {
-        const coordinates = await geocodingService.getCoordinates(place.address);
-        
+        const geocodeResult = await googleMapsService.getCoordinates(place.address);
+
+        // Update place with coordinates
         place.location = {
-          lat: coordinates.lat,
-          lng: coordinates.lng
+          type: 'Point',
+          coordinates: [geocodeResult.lng, geocodeResult.lat],
+          lat: geocodeResult.lat,
+          lng: geocodeResult.lng
         };
-        
+
         await place.save();
-        
+
         results.push({
           placeId: place._id,
           name: place.name,
-          success: true,
-          coordinates: coordinates
+          address: place.address,
+          status: 'success',
+          coordinates: {
+            lat: geocodeResult.lat,
+            lng: geocodeResult.lng
+          }
         });
-        
-        successCount++;
-        
+
+        successful++;
+        console.log(`Geocoded: ${place.name} - ${place.address}`);
+
         // Add delay to respect API rate limits
-        await new Promise(resolve => setTimeout(resolve, 200));
-        
+        await new Promise(resolve => setTimeout(resolve, 100));
+
       } catch (error) {
         results.push({
           placeId: place._id,
           name: place.name,
-          success: false,
+          address: place.address,
+          status: 'failed',
           error: error.message
         });
-        errorCount++;
+
+        failed++;
+        console.error(`Failed to geocode: ${place.name} - ${error.message}`);
       }
     }
 
     res.json({
       success: true,
-      message: `Batch geocoding completed. ${successCount} successful, ${errorCount} failed.`,
-      processed: placesWithoutCoords.length,
-      successCount,
-      errorCount,
-      results
+      message: `Batch geocoding completed. ${successful} successful, ${failed} failed.`,
+      data: {
+        processed: placesWithoutCoords.length,
+        successful,
+        failed,
+        results
+      }
     });
   } catch (error) {
-    console.error('Batch geocode places error:', error);
+    console.error('Batch geocode error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to batch geocode places'
+      message: 'Failed to perform batch geocoding'
+    });
+  }
+};
+
+// Get places statistics
+export const getPlacesStats = async (req, res) => {
+  try {
+    const totalPlaces = await Place.countDocuments();
+    const activePlaces = await Place.countDocuments({ isActive: true });
+    const placesWithCoords = await Place.countDocuments({
+      'location.lat': { $exists: true },
+      'location.lng': { $exists: true }
+    });
+
+    const categoryStats = await Place.aggregate([
+      { $group: { _id: '$category', count: { $sum: 1 } } },
+      { $sort: { count: -1 } }
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        totalPlaces,
+        activePlaces,
+        placesWithCoords,
+        placesWithoutCoords: totalPlaces - placesWithCoords,
+        categoryStats
+      }
+    });
+  } catch (error) {
+    console.error('Get places stats error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get places statistics'
     });
   }
 };

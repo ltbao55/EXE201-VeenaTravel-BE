@@ -6,9 +6,10 @@ import {
   updatePlace,
   deletePlace,
   searchPlacesByLocation,
-  batchGeocodePlaces
+  batchGeocodePlaces,
+  getPlacesStats
 } from '../controllers/placesController.js';
-import { verifyFirebaseToken, requireAdmin, optionalAuth } from '../middleware/auth.js';
+import { requireAdmin, optionalAuth, verifyToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -18,9 +19,10 @@ router.get('/search/location', optionalAuth, searchPlacesByLocation);
 router.get('/:id', optionalAuth, getPlaceById);
 
 // Admin only routes
-router.post('/', verifyFirebaseToken, requireAdmin, createPlace);
-router.put('/:id', verifyFirebaseToken, requireAdmin, updatePlace);
-router.delete('/:id', verifyFirebaseToken, requireAdmin, deletePlace);
-router.post('/batch-geocode', verifyFirebaseToken, requireAdmin, batchGeocodePlaces);
+router.post('/', verifyToken, requireAdmin, createPlace);
+router.put('/:id', verifyToken, requireAdmin, updatePlace);
+router.delete('/:id', verifyToken, requireAdmin, deletePlace);
+router.post('/batch-geocode', verifyToken, requireAdmin, batchGeocodePlaces);
+router.get('/stats', verifyToken, requireAdmin, getPlacesStats);
 
 export default router;

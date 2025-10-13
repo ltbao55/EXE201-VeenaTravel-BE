@@ -21,20 +21,20 @@ const placeSchema = new mongoose.Schema({
   
   // Coordinates from Google Geocoding API
   location: {
-    lat: { 
-      type: Number, 
-      required: true 
+    lat: {
+      type: Number,
+      required: true
     },
-    lng: { 
-      type: Number, 
-      required: true 
+    lng: {
+      type: Number,
+      required: true
     }
   },
   
   // Additional information
   category: {
     type: String,
-    enum: ['restaurant', 'attraction', 'hotel', 'shopping', 'entertainment', 'nature', 'historical', 'cultural', 'other'],
+    enum: ['restaurant', 'attraction', 'hotel', 'shopping', 'entertainment', 'nature', 'historical', 'cultural', 'landmark', 'other'],
     default: 'other'
   },
   
