@@ -3,6 +3,7 @@ import PartnerPlace from "../models/PartnerPlace.js";
 import googlemapsService from "../services/googlemaps-service.js";
 import hybridSearchService from "../services/hybrid-search-service.js";
 import cacheService from "../services/cache-service.js";
+import { getCoordinates, calculateDistance as calcDistance, isValidCoordinates } from "../utils/coordinate-helpers.js";
 
 /**
  * =================================================================
@@ -605,42 +606,57 @@ const filterByDistance = (items, userLat, userLng, maxDistanceKm) => {
 };
 
 /**
- * Calculate distance between two coordinates (Haversine formula)
+ * Calculate distance between two coordinates (using helper)
+ * Wrapper for backward compatibility
  */
 const calculateDistance = (lat1, lng1, lat2, lng2) => {
-  const R = 6371000; // Earth's radius in meters
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLng = (lng2 - lng1) * Math.PI / 180;
-  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-            Math.sin(dLng / 2) * Math.sin(dLng / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
+  return calcDistance(lat1, lng1, lat2, lng2);
 };
 
 /**
  * Normalize explore item to consistent format
+ * ✅ Always returns coordinates in {lat, lng} format for Frontend
+ * Supports: GeoJSON, {lat, lng}, {latitude, longitude}, nested formats
  */
 const normalizeExploreItem = (item) => {
+  // Extract coordinates using helper (supports all formats)
+  const coordinates = getCoordinates(item.location || item);
+  
+  // Validate coordinates
+  const validCoords = coordinates && isValidCoordinates(coordinates.lat, coordinates.lng)
+    ? coordinates
+    : null;
+  
+  // Normalize photo URL selection
+  const imageArray = Array.isArray(item.images) ? item.images : [];
+  let normalizedPhotoUrl = item.photoUrl || item.thumbnail || null;
+  if (imageArray.length > 0) {
+    const firstImage = imageArray[0];
+    if (typeof firstImage === 'string') {
+      normalizedPhotoUrl = firstImage;
+    } else if (firstImage && typeof firstImage === 'object') {
+      // Prefer medium, then large, then small
+      normalizedPhotoUrl = firstImage.url_medium || firstImage.url_large || firstImage.url_small || normalizedPhotoUrl;
+    }
+  }
+  
   return {
     id: item._id || item.id,
     title: item.name || item.title,
     description: item.description,
     category: item.category,
     address: item.address,
-    coordinates: {
-      lat: item.location?.lat || item.latitude || (item.location?.coordinates ? item.location.coordinates[1] : null),
-      lng: item.location?.lng || item.longitude || (item.location?.coordinates ? item.location.coordinates[0] : null)
-    },
+    
+    // ✅ Frontend-friendly format: {lat, lng}
+    coordinates: validCoords,
+    
     rating: {
       average: item.rating?.average || item.rating || 0,
       count: item.rating?.count || item.reviewCount || 0
     },
     tags: item.tags || [],
-    images: Array.isArray(item.images) ? item.images : [],
-    photoUrl: Array.isArray(item.images) && item.images.length > 0 
-      ? item.images[0] 
-      : item.photoUrl || item.thumbnail || null,
+    images: imageArray,
+    photoUrl: normalizedPhotoUrl,
     source: item.source || 'unknown',
     isPartner: item.isPartner || false,
     priority: item.priority || 1,
