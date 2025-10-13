@@ -2,7 +2,9 @@ import mongoose from "mongoose";
 
 const reviewSchema = new mongoose.Schema({
   // Review target
-  destination: { type: mongoose.Schema.Types.ObjectId, ref: 'Destination', required: true },
+  destination: { type: mongoose.Schema.Types.ObjectId, ref: 'Destination' },
+  // Optional: review for a specific Place (Explore)
+  place: { type: mongoose.Schema.Types.ObjectId, ref: 'Place' },
   trip: { type: mongoose.Schema.Types.ObjectId, ref: 'Trip' }, // Optional: if review is part of a trip
   
   // Reviewer information
@@ -58,6 +60,7 @@ const reviewSchema = new mongoose.Schema({
 
 // Indexes
 reviewSchema.index({ destination: 1, rating: -1 });
+reviewSchema.index({ place: 1, createdAt: -1 });
 reviewSchema.index({ user: 1 });
 reviewSchema.index({ createdAt: -1 });
 

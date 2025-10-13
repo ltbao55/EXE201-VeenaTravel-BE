@@ -28,6 +28,10 @@ import testMapsRoute from "./routes/test-maps.js";
 // Import hybrid search system routes
 import hybridSearchRoute from "./routes/hybridSearchRoutes.js";
 import adminRoute from "./routes/adminRoutes.js";
+import exploreRoute from "./routes/exploreRoutes.js";
+
+// Import payment routes
+import paymentRoute from "./routes/paymentRoutes.js";
 
 
 // Import database connection
@@ -120,10 +124,14 @@ app.use("/api/maps", mapsRoute);
 app.use("/api/integrated-search", integratedSearchRoute);
 app.use("/api/chat", chatRoute);
 app.use("/api/test-maps", testMapsRoute);
+app.use("/api/explore", exploreRoute);
 
 // Hybrid search system routes
 app.use("/api/hybrid-search", hybridSearchRoute);
 app.use("/api/admin/partner-places", adminRoute);
+
+// Payment routes
+app.use("/api/payments", paymentRoute);
 
 // Health check endpoint
 app.get("/api/health", (_, res) => {
