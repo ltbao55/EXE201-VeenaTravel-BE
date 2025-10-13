@@ -1,0 +1,514 @@
+{
+  "info": {
+    "name": "VeenaTravel - Explore API",
+    "description": "Collection of Explore API endpoints for testing",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5001/api",
+      "type": "string"
+    },
+    {
+      "key": "vung_tau_lat",
+      "value": "10.3458",
+      "type": "string"
+    },
+    {
+      "key": "vung_tau_lng",
+      "value": "107.0843",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Basic Explore",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/explore?page=1&limit=20",
+          "host": ["{{base_url}}"],
+          "path": ["explore"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1",
+              "description": "Page number"
+            },
+            {
+              "key": "limit",
+              "value": "20",
+              "description": "Items per page"
+            }
+          ]
+        },
+        "description": "Get basic list of explore places without filters"
+      },
+      "response": []
+    },
+    {
+      "name": "2. Filter by City",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/explore?city=Vũng Tàu&page=1&limit=20",
+          "host": ["{{base_url}}"],
+          "path": ["explore"],
+          "query": [
+            {
+              "key": "city",
+              "value": "Vũng Tàu"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "20"
+            }
+          ]
+        },
+        "description": "Filter places by city (Vũng Tàu)"
+      },
+      "response": []
+    },
+    {
+      "name": "3. Filter by Category (Restaurant)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/explore?category=restaurant&page=1&limit=20",
+          "host": ["{{base_url}}"],
+          "path": ["explore"],
+          "query": [
+            {
+              "key": "category",
+              "value": "restaurant"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "20"
+            }
+          ]
+        },
+        "description": "Filter by category (restaurants only)"
+      },
+      "response": []
+    },
+    {
+      "name": "4. Multiple Filters",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/explore?city=Vũng Tàu&category=restaurant&minRating=4&page=1&limit=20",
+          "host": ["{{base_url}}"],
+          "path": ["explore"],
+          "query": [
+            {
+              "key": "city",
+              "value": "Vũng Tàu"
+            },
+            {
+              "key": "category",
+              "value": "restaurant"
+            },
+            {
+              "key": "minRating",
+              "value": "4"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "20"
+            }
+          ]
+        },
+        "description": "Combine multiple filters: city + category + rating"
+      },
+      "response": []
+    },
+    {
+      "name": "5. Sort by Rating",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/explore?sort=rating&limit=20",
+          "host": ["{{base_url}}"],
+          "path": ["explore"],
+          "query": [
+            {
+              "key": "sort",
+              "value": "rating"
+            },
+            {
+              "key": "limit",
+              "value": "20"
+            }
+          ]
+        },
+        "description": "Sort places by highest rating"
+      },
+      "response": []
+    },
+    {
+      "name": "6. Sort by Popular",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/explore?sort=popular&limit=20",
+          "host": ["{{base_url}}"],
+          "path": ["explore"],
+          "query": [
+            {
+              "key": "sort",
+              "value": "popular"
+            },
+            {
+              "key": "limit",
+              "value": "20"
+            }
+          ]
+        },
+        "description": "Sort by popularity (review count)"
+      },
+      "response": []
+    },
+    {
+      "name": "7. Distance-Based Search",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/explore?lat={{vung_tau_lat}}&lng={{vung_tau_lng}}&sort=distance&maxDistance=20&limit=20",
+          "host": ["{{base_url}}"],
+          "path": ["explore"],
+          "query": [
+            {
+              "key": "lat",
+              "value": "{{vung_tau_lat}}"
+            },
+            {
+              "key": "lng",
+              "value": "{{vung_tau_lng}}"
+            },
+            {
+              "key": "sort",
+              "value": "distance"
+            },
+            {
+              "key": "maxDistance",
+              "value": "20",
+              "description": "Max distance in km"
+            },
+            {
+              "key": "limit",
+              "value": "20"
+            }
+          ]
+        },
+        "description": "Sort by distance from user location"
+      },
+      "response": []
+    },
+    {
+      "name": "8. Partners Only",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/explore?source=partners&sort=priority&limit=20",
+          "host": ["{{base_url}}"],
+          "path": ["explore"],
+          "query": [
+            {
+              "key": "source",
+              "value": "partners"
+            },
+            {
+              "key": "sort",
+              "value": "priority"
+            },
+            {
+              "key": "limit",
+              "value": "20"
+            }
+          ]
+        },
+        "description": "Get only partner places sorted by priority"
+      },
+      "response": []
+    },
+    {
+      "name": "9. Text Search",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/explore?q=biển&limit=20",
+          "host": ["{{base_url}}"],
+          "path": ["explore"],
+          "query": [
+            {
+              "key": "q",
+              "value": "biển",
+              "description": "Search keyword"
+            },
+            {
+              "key": "limit",
+              "value": "20"
+            }
+          ]
+        },
+        "description": "Text search across name, description, tags"
+      },
+      "response": []
+    },
+    {
+      "name": "10. Random Sampling",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/explore?random=true&limit=10",
+          "host": ["{{base_url}}"],
+          "path": ["explore"],
+          "query": [
+            {
+              "key": "random",
+              "value": "true"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        },
+        "description": "Get random places (for discovery feature)"
+      },
+      "response": []
+    },
+    {
+      "name": "11. Nearby Places",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/explore/nearby?lat={{vung_tau_lat}}&lng={{vung_tau_lng}}&radius=5000&limit=20",
+          "host": ["{{base_url}}"],
+          "path": ["explore", "nearby"],
+          "query": [
+            {
+              "key": "lat",
+              "value": "{{vung_tau_lat}}",
+              "description": "User latitude"
+            },
+            {
+              "key": "lng",
+              "value": "{{vung_tau_lng}}",
+              "description": "User longitude"
+            },
+            {
+              "key": "radius",
+              "value": "5000",
+              "description": "Search radius in meters"
+            },
+            {
+              "key": "limit",
+              "value": "20"
+            }
+          ]
+        },
+        "description": "Find places near user location using hybrid search"
+      },
+      "response": []
+    },
+    {
+      "name": "12. Nearby Restaurants",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/explore/nearby?lat={{vung_tau_lat}}&lng={{vung_tau_lng}}&radius=3000&category=restaurant&limit=20",
+          "host": ["{{base_url}}"],
+          "path": ["explore", "nearby"],
+          "query": [
+            {
+              "key": "lat",
+              "value": "{{vung_tau_lat}}"
+            },
+            {
+              "key": "lng",
+              "value": "{{vung_tau_lng}}"
+            },
+            {
+              "key": "radius",
+              "value": "3000"
+            },
+            {
+              "key": "category",
+              "value": "restaurant"
+            },
+            {
+              "key": "limit",
+              "value": "20"
+            }
+          ]
+        },
+        "description": "Find nearby restaurants within 3km"
+      },
+      "response": []
+    },
+    {
+      "name": "13. Get All Categories",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/explore/categories",
+          "host": ["{{base_url}}"],
+          "path": ["explore", "categories"]
+        },
+        "description": "Get all available categories with counts"
+      },
+      "response": []
+    },
+    {
+      "name": "14. Get Categories by City",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/explore/categories?city=Vũng Tàu",
+          "host": ["{{base_url}}"],
+          "path": ["explore", "categories"],
+          "query": [
+            {
+              "key": "city",
+              "value": "Vũng Tàu"
+            }
+          ]
+        },
+        "description": "Get categories available in a specific city"
+      },
+      "response": []
+    },
+    {
+      "name": "15. Featured Places",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/explore/featured?limit=10",
+          "host": ["{{base_url}}"],
+          "path": ["explore", "featured"],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        },
+        "description": "Get featured places (high rating, popular)"
+      },
+      "response": []
+    },
+    {
+      "name": "16. Featured by City",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/explore/featured?city=Vũng Tàu&limit=10",
+          "host": ["{{base_url}}"],
+          "path": ["explore", "featured"],
+          "query": [
+            {
+              "key": "city",
+              "value": "Vũng Tàu"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        },
+        "description": "Get featured places in a specific city"
+      },
+      "response": []
+    },
+    {
+      "name": "17. Place Details by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/explore/:placeId",
+          "host": ["{{base_url}}"],
+          "path": ["explore", ":placeId"],
+          "variable": [
+            {
+              "key": "placeId",
+              "value": "60d5ec49f1b2c72b8c8e4f1a",
+              "description": "Place MongoDB ObjectId"
+            }
+          ]
+        },
+        "description": "Get detailed information about a specific place"
+      },
+      "response": []
+    },
+    {
+      "name": "18. With Google Maps Data",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/explore?city=Vũng Tàu&lat={{vung_tau_lat}}&lng={{vung_tau_lng}}&source=all&limit=20",
+          "host": ["{{base_url}}"],
+          "path": ["explore"],
+          "query": [
+            {
+              "key": "city",
+              "value": "Vũng Tàu"
+            },
+            {
+              "key": "lat",
+              "value": "{{vung_tau_lat}}"
+            },
+            {
+              "key": "lng",
+              "value": "{{vung_tau_lng}}"
+            },
+            {
+              "key": "source",
+              "value": "all",
+              "description": "Include Google Maps data"
+            },
+            {
+              "key": "limit",
+              "value": "20"
+            }
+          ]
+        },
+        "description": "Get places from all sources including Google Maps"
+      },
+      "response": []
+    }
+  ]
+}
+
