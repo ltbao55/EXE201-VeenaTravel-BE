@@ -8,7 +8,7 @@ import {
   handleWebhook,
   getPaymentStats
 } from '../controllers/paymentController.js';
-import { authenticateToken } from '../middleware/auth.js';
+import { verifyToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -17,12 +17,12 @@ router.post('/webhook', handleWebhook);
 router.get('/return', handlePaymentReturn);
 
 // Protected routes (cần authentication)
-router.post('/create', authenticateToken, createPaymentLink);
-router.get('/info/:orderCode', authenticateToken, getPaymentInfo);
-router.get('/user-payments', authenticateToken, getUserPayments);
-router.post('/cancel/:orderCode', authenticateToken, cancelPayment);
+router.post('/create', verifyToken, createPaymentLink);
+router.get('/info/:orderCode', verifyToken, getPaymentInfo);
+router.get('/user-payments', verifyToken, getUserPayments);
+router.post('/cancel/:orderCode', verifyToken, cancelPayment);
 
 // Admin routes (cần authentication và admin role)
-router.get('/stats', authenticateToken, getPaymentStats);
+router.get('/stats', verifyToken, getPaymentStats);
 
 export default router;
