@@ -16,12 +16,32 @@ export const getAllChatSessions = async (req, res) => {
     if (status) query.status = status;
     
     const sessions = await ChatSession.find(query)
-      // userId is Mixed (not a ref) → do not populate user
+      // userId in schema is Mixed (not a ref), so do not populate
       .populate('generatedTrip', 'name startDate endDate')
       .select('-messages') // Exclude messages for list view
       .sort({ lastActivity: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit);
+    
+    // Debug log: list chat sessions snapshot
+    try {
+      console.log("[ChatSessions][List] total:", sessions.length);
+      console.log(
+        "[ChatSessions][List] items:",
+        sessions.map(s => ({
+          _id: s._id,
+          sessionId: s.sessionId,
+          userId: s.userId,
+          title: s.title,
+          isActive: s.isActive,
+          lastActivity: s.lastActivity,
+          messageCount: s.messageCount,
+          generatedTrip: s.generatedTrip ? s.generatedTrip._id || s.generatedTrip : null
+        }))
+      );
+    } catch (e) {
+      console.warn("[ChatSessions][List] log failed:", e);
+    }
       
     const total = await ChatSession.countDocuments(query);
     
@@ -99,7 +119,9 @@ export const createChatSession = async (req, res) => {
     const session = new ChatSession(sessionData);
     const newSession = await session.save();
     
-    const populatedSession = await ChatSession.findById(newSession._id);
+    const populatedSession = await ChatSession.findById(newSession._id)
+      // userId is not a ref, no populate here
+      ;
     
     res.status(201).json(populatedSession);
     
@@ -114,7 +136,7 @@ export const updateChatSession = async (req, res) => {
     const { id } = req.params;
     const updateData = req.body;
     
-    // Don't allow changing userId or sessionId
+    // Don't allow changing user or sessionId
     delete updateData.userId;
     delete updateData.sessionId;
     
@@ -165,7 +187,8 @@ export const addMessageToSession = async (req, res) => {
     
     await session.save();
     
-    const updatedSession = await ChatSession.findById(id);
+    const updatedSession = await ChatSession.findById(id)
+      ;
     
     res.status(200).json(updatedSession);
     
@@ -187,7 +210,8 @@ export const updateSessionContext = async (req, res) => {
         lastActivity: new Date()
       },
       { new: true, runValidators: true }
-    );
+    )
+    ;
     
     if (!session) {
       return res.status(404).json({ message: "Chat session not found" });
@@ -244,6 +268,26 @@ export const getUserChatSessions = async (req, res) => {
       .sort({ lastActivity: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit);
+    
+    // Debug log: user chat sessions snapshot
+    try {
+      console.log("[ChatSessions][UserList] userId:", userId, "total:", sessions.length);
+      console.log(
+        "[ChatSessions][UserList] items:",
+        sessions.map(s => ({
+          _id: s._id,
+          sessionId: s.sessionId,
+          userId: s.userId,
+          title: s.title,
+          isActive: s.isActive,
+          lastActivity: s.lastActivity,
+          messageCount: s.messageCount,
+          generatedTrip: s.generatedTrip ? s.generatedTrip._id || s.generatedTrip : null
+        }))
+      );
+    } catch (e) {
+      console.warn("[ChatSessions][UserList] log failed:", e);
+    }
       
     const total = await ChatSession.countDocuments(query);
     
