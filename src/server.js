@@ -32,6 +32,7 @@ import exploreRoute from "./routes/exploreRoutes.js";
 
 // Import payment routes
 import paymentRoute from "./routes/paymentRoutes.js";
+import vnpayRoute from "./routes/vnpayRoutes.js";
 
 
 // Import database connection
@@ -132,6 +133,7 @@ app.use("/api/admin/partner-places", adminRoute);
 
 // Payment routes
 app.use("/api/payments", paymentRoute);
+app.use("/api/vnpay", vnpayRoute);
 
 // Health check endpoint
 app.get("/api/health", (_, res) => {
