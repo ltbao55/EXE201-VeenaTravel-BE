@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh toán thành công - Veena Travel</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="success-page">
+            <div class="icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h1>Thanh toán thành công!</h1>
+            <p class="mb-20">Cảm ơn bạn đã sử dụng dịch vụ của Veena Travel.</p>
+            
+            <div class="payment-info" id="paymentInfo">
+                <!-- Payment information will be displayed here -->
+            </div>
+            
+            <div class="actions">
+                <button class="btn btn-primary" onclick="goHome()">
+                    <i class="fas fa-home"></i> Về trang chủ
+                </button>
+                <button class="btn btn-secondary" onclick="viewReceipt()">
+                    <i class="fas fa-receipt"></i> Xem hóa đơn
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get payment info from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderCode = urlParams.get('orderCode');
+        const amount = urlParams.get('amount');
+        const status = urlParams.get('status');
+        
+        // Display payment information
+        if (orderCode) {
+            document.getElementById('paymentInfo').innerHTML = `
+                <div class="info-card">
+                    <h3><i class="fas fa-info-circle"></i> Thông tin thanh toán</h3>
+                    <p><strong>Mã đơn hàng:</strong> ${orderCode}</p>
+                    <p><strong>Trạng thái:</strong> <span class="status-success">Thành công</span></p>
+                    ${amount ? `<p><strong>Số tiền:</strong> ${parseInt(amount).toLocaleString('vi-VN')} VNĐ</p>` : ''}
+                    <p><strong>Thời gian:</strong> ${new Date().toLocaleString('vi-VN')}</p>
+                </div>
+            `;
+        }
+        
+        function goHome() {
+            window.location.href = '/';
+        }
+        
+        function viewReceipt() {
+            if (orderCode) {
+                // In a real application, you would redirect to a receipt page
+                alert(`Hóa đơn cho đơn hàng ${orderCode} sẽ được gửi qua email.`);
+            } else {
+                alert('Không tìm thấy thông tin đơn hàng.');
+            }
+        }
+    </script>
+</body>
+</html>
+

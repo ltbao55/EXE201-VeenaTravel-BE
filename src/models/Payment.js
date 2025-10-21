@@ -71,13 +71,12 @@ const paymentSchema = new mongoose.Schema({
   // Phương thức thanh toán
   paymentMethod: {
     type: String,
-    enum: ['payos', 'vnpay', 'momo', 'zalopay'],
+    enum: ['payos', 'momo', 'zalopay'],
     default: 'payos'
   },
   
-  // Thông tin giao dịch từ PayOS/VNPAY
+  // Thông tin giao dịch từ PayOS
   transactionInfo: {
-    // PayOS fields
     reference: String, // Mã tham chiếu từ ngân hàng
     accountNumber: String, // Số tài khoản thụ hưởng
     transactionDateTime: Date, // Thời gian giao dịch
@@ -91,19 +90,6 @@ const paymentSchema = new mongoose.Schema({
     counterAccountNumber: String, // Số tài khoản người gửi
     virtualAccountName: String, // Tên tài khoản ảo
     virtualAccountNumber: String, // Số tài khoản ảo
-    
-    // VNPAY fields
-    vnpTransactionNo: String, // Mã giao dịch VNPAY
-    vnpPayDate: String, // Thời gian thanh toán VNPAY (yyyyMMddHHmmss)
-    vnpBankCode: String, // Mã ngân hàng VNPAY
-    vnpCardType: String, // Loại thẻ VNPAY (ATM, QRCODE)
-    vnpBankTranNo: String, // Mã giao dịch ngân hàng
-    vnpResponseCode: String, // Mã phản hồi VNPAY
-    vnpTransactionStatus: String, // Trạng thái giao dịch VNPAY
-    vnpTxnRef: String, // Mã tham chiếu giao dịch
-    vnpAmount: Number, // Số tiền giao dịch (đã nhân 100)
-    vnpOrderInfo: String, // Thông tin đơn hàng
-    vnpSecureHash: String, // Chữ ký bảo mật
     errorMessage: String // Thông báo lỗi
   },
   

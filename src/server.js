@@ -32,7 +32,7 @@ import exploreRoute from "./routes/exploreRoutes.js";
 
 // Import payment routes
 import paymentRoute from "./routes/paymentRoutes.js";
-import vnpayRoute from "./routes/vnpayRoutes.js";
+import payosTestRoute from "./routes/payosTestRoutes.js";
 
 
 // Import database connection
@@ -80,6 +80,9 @@ const corsOptions = {
   optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
+
+// Serve static files from public directory
+app.use(express.static('public'));
 
 // Body parsing middleware
 app.use(express.json({
@@ -133,7 +136,9 @@ app.use("/api/admin/partner-places", adminRoute);
 
 // Payment routes
 app.use("/api/payments", paymentRoute);
-app.use("/api/vnpay", vnpayRoute);
+
+// PayOS Test Interface routes
+app.use("/api/payments", payosTestRoute);
 
 // Health check endpoint
 app.get("/api/health", (_, res) => {
