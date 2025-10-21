@@ -233,6 +233,14 @@ ${contextInfo}
 - ❌ KHÔNG đặt thời gian quá gấp (< 1 giờ/địa điểm)
 - ❌ PHẢI tạo lịch trình cho ${destination}, KHÔNG ĐƯỢC tạo cho địa điểm khác
 
+**📍 QUY TẮC ĐỊA CHỈ (BẮT BUỘC):**
+- ✅ Format: "Tên địa điểm cụ thể, Tên thành phố, Việt Nam"
+- ✅ Ví dụ: "Chợ Bến Thành, Quận 1, Hồ Chí Minh, Việt Nam"
+- ✅ Ví dụ: "Hải đăng Vũng Tàu, Vũng Tàu, Việt Nam"
+- ❌ KHÔNG dùng: "Khách sạn", "Nhà hàng", "Địa điểm", "Tự chọn"
+- ❌ KHÔNG dùng: "Về lại điểm xuất phát", "Nghỉ ngơi"
+- ❌ KHÔNG dùng địa chỉ chung chung không có tên cụ thể
+
 **Yêu cầu định dạng JSON:**
 {
   "title": "Tên lịch trình",
@@ -249,7 +257,7 @@ ${contextInfo}
         {
           "time": "08:00",
           "activity": "Tên hoạt động",
-          "location": "Địa điểm",
+          "location": "Tên địa điểm cụ thể, Tên thành phố, Việt Nam",
           "description": "Mô tả chi tiết",
           "estimatedCost": "Chi phí ước tính",
           "duration": "Thời gian",

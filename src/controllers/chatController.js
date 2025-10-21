@@ -1048,6 +1048,22 @@ const geocodeWithFallback = async (loc, destination) => {
     return loc;
   }
 
+  // ✅ FILTER OUT INVALID ADDRESSES
+  const invalidAddresses = [
+    'khách sạn', 'nhà hàng', 'địa điểm', 'tự chọn', 'về lại điểm xuất phát',
+    'nghỉ ngơi', 'nghỉ', 'tự do', 'tùy chọn', 'cửa hàng đặc sản',
+    'tham khảo trên mạng', 'có thể chọn', 'tùy ý'
+  ];
+  
+  const isInvalidAddress = invalidAddresses.some(invalid => 
+    loc.address.toLowerCase().includes(invalid)
+  );
+  
+  if (isInvalidAddress) {
+    console.warn(`⚠️ Skipping invalid address: ${loc.address}`);
+    return loc; // Return original without coordinates
+  }
+
   try {
     // ✅ CHECK CACHE FIRST (7 days TTL)
     const cacheKey = `${loc.address}|${destination || ''}`;
@@ -1059,12 +1075,26 @@ const geocodeWithFallback = async (loc, destination) => {
     }
 
     // Strategy 1: Try exact address
+    console.log(`📍 Strategy 1: Geocoding "${loc.address}"`);
     let result = await googlemapsService.getCoordinates(loc.address);
+    
+    if (!result.success) {
+      console.warn(`❌ Strategy 1 failed: ${result.message}`);
+    } else {
+      console.log(`✅ Strategy 1 success: ${result.data.lat}, ${result.data.lng}`);
+    }
     
     // Strategy 2: Try address + destination
     if (!result.success && destination) {
       const fullAddress = `${loc.address}, ${destination}`;
+      console.log(`📍 Strategy 2: Geocoding "${fullAddress}"`);
       result = await googlemapsService.getCoordinates(fullAddress);
+      
+      if (!result.success) {
+        console.warn(`❌ Strategy 2 failed: ${result.message}`);
+      } else {
+        console.log(`✅ Strategy 2 success: ${result.data.lat}, ${result.data.lng}`);
+      }
     }
     
     // Strategy 3: Try nearby search (if we have a city center or coordinates)
@@ -1178,10 +1208,12 @@ const geocodeWithFallback = async (loc, destination) => {
     }
     
   } catch (error) {
-    console.warn(`⚠️  Geocoding failed for: ${loc.address}`, error.message);
+    console.error(`❌ Geocoding error for "${loc.address}":`, error.message);
+    console.error(`   Full error:`, error);
   }
 
   // Return original if all strategies fail
+  console.warn(`⚠️ All geocoding strategies failed for: ${loc.address}`);
   return loc;
 };
 

@@ -30,7 +30,7 @@ import loggingService from './logging-service.js';
  */
 const hybridSearch = async (query, options = {}) => {
   const startTime = Date.now();
-  const { partnerLimit = 2, googleLimit = 5, location = null } = options;
+  const { partnerLimit = 2, googleLimit = 5, location = null, radiusMeters = 50000 } = options;
 
   try {
     console.log(`🔍 Bắt đầu Hybrid Search cho: "${query}"`);
@@ -87,8 +87,17 @@ const hybridSearch = async (query, options = {}) => {
     });
 
     // Step 2: Data Processing & Normalization
-    const normalizedPartners = normalizePineconeResults(partnerResults);
-    const normalizedGoogle = normalizeGoogleResults(googleResults);
+    let normalizedPartners = normalizePineconeResults(partnerResults);
+    let normalizedGoogle = normalizeGoogleResults(googleResults);
+
+    // Step 2.1: If location provided, enrich with distance/confidence and filter by radius
+    if (location && location.lat && location.lng) {
+      normalizedPartners = normalizedPartners.map(p => enrichWithGeoMeta(p, location, radiusMeters));
+      normalizedGoogle = normalizedGoogle.map(g => enrichWithGeoMeta(g, location, radiusMeters));
+
+      normalizedPartners = normalizedPartners.filter(p => p.distanceMeters !== null && p.distanceMeters <= radiusMeters);
+      normalizedGoogle = normalizedGoogle.filter(g => g.distanceMeters !== null && g.distanceMeters <= radiusMeters);
+    }
 
     // Step 3: Merging & Ranking
     const finalResults = mergeAndRank(normalizedPartners, normalizedGoogle, location);
@@ -106,7 +115,8 @@ const hybridSearch = async (query, options = {}) => {
           google_count: normalizedGoogle.length,
           total_count: finalResults.length,
           search_duration_ms: searchDuration,
-          cached: false
+          cached: false,
+          ...(location && location.lat && location.lng ? { region_center: { lat: location.lat, lng: location.lng }, radius_meters: radiusMeters } : {})
         }
       }
     };
@@ -191,6 +201,36 @@ const normalizeGoogleResults = (promiseResult) => {
     isPartner: false,
     raw: place // Keep original data if needed
   }));
+};
+
+/**
+ * Enrich a place with distance/confidence/region metadata.
+ */
+const enrichWithGeoMeta = (place, center, radiusMeters) => {
+  if (!place?.coordinates || typeof place.coordinates.lat !== 'number' || typeof place.coordinates.lng !== 'number') {
+    return {
+      ...place,
+      distanceMeters: null,
+      confidence: 'low',
+      region: null
+    };
+  }
+
+  const distance = calculateDistance(center.lat, center.lng, place.coordinates.lat, place.coordinates.lng);
+
+  let confidence = 'low';
+  if (distance <= Math.min(5000, radiusMeters)) confidence = 'high';
+  else if (distance <= Math.min(20000, radiusMeters)) confidence = 'medium';
+
+  return {
+    ...place,
+    distanceMeters: Math.round(distance),
+    confidence,
+    region: {
+      center,
+      radiusMeters
+    }
+  };
 };
 
 /**
