@@ -3,6 +3,7 @@ import PartnerPlace from "../models/PartnerPlace.js";
 import googlemapsService from "../services/googlemaps-service.js";
 import hybridSearchService from "../services/hybrid-search-service.js";
 import cacheService from "../services/cache-service.js";
+import { getCoordinates, calculateDistance as calcDistance, isValidCoordinates } from "../utils/coordinate-helpers.js";
 
 /**
  * =================================================================
@@ -380,15 +381,82 @@ export const getPlaceDetails = async (req, res) => {
     let place = null;
     let placeSource = null;
 
-    // Try to find in different sources
-    if (source === 'auto' || source === 'places') {
-      place = await Place.findOne({ _id: id, isActive: true }).lean();
-      if (place) placeSource = 'places';
-    }
+    // ✅ ENHANCED: Check if id is Google Maps placeId
+    const isGooglePlaceId = id.startsWith('ChIJ');
+    
+    if (isGooglePlaceId) {
+      // ✅ Handle Google Maps placeId
+      console.log(`🔍 Looking up Google Maps placeId: ${id}`);
+      
+      try {
+        const googleMapsService = (await import('../services/googlemaps-service.js')).default;
+        const placeDetails = await googleMapsService.getPlaceDetails(id);
+        
+        if (placeDetails.success) {
+          const googlePlace = placeDetails.data;
+          
+          // ✅ Convert Google Maps data to our format
+          place = {
+            _id: id, // Use placeId as _id for consistency
+            name: googlePlace.name,
+            address: googlePlace.formatted_address,
+            coordinates: {
+              lat: googlePlace.geometry?.location?.lat,
+              lng: googlePlace.geometry?.location?.lng
+            },
+            rating: {
+              average: googlePlace.rating || 0,
+              count: googlePlace.user_ratings_total || 0
+            },
+            photos: googlePlace.photos?.map(photo => ({
+              photo_reference: photo.photo_reference,
+              url_small: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${photo.photo_reference}&key=${process.env.GOOGLE_MAPS_API_KEY}`,
+              url_medium: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${photo.photo_reference}&key=${process.env.GOOGLE_MAPS_API_KEY}`,
+              url_large: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photo_reference=${photo.photo_reference}&key=${process.env.GOOGLE_MAPS_API_KEY}`
+            })) || [],
+            photoUrl: googlePlace.photos?.[0] ? 
+              `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${googlePlace.photos[0].photo_reference}&key=${process.env.GOOGLE_MAPS_API_KEY}` : 
+              null,
+            contact: {
+              phone: googlePlace.formatted_phone_number || null,
+              website: googlePlace.website || null
+            },
+            openingHours: googlePlace.opening_hours?.weekday_text || null,
+            priceLevel: googlePlace.price_level || null,
+            userRatingsTotal: googlePlace.user_ratings_total || 0,
+            reviews: googlePlace.reviews?.slice(0, 3).map(review => ({
+              author: review.author_name,
+              rating: review.rating,
+              text: review.text,
+              time: review.time
+            })) || [],
+            amenities: googlePlace.types || [],
+            category: googlePlace.types?.[0] || 'other',
+            description: googlePlace.editorial_summary?.overview || googlePlace.formatted_address,
+            placeId: id,
+            isActive: true,
+            source: 'google'
+          };
+          placeSource = 'google';
+          console.log(`✅ Found Google Maps place: ${place.name}`);
+        }
+      } catch (googleError) {
+        console.warn(`⚠️ Google Maps API error for ${id}:`, googleError.message);
+      }
+    } else {
+      // ✅ Handle MongoDB ObjectId
+      console.log(`🔍 Looking up MongoDB ObjectId: ${id}`);
+      
+      // Try to find in different sources
+      if (source === 'auto' || source === 'places') {
+        place = await Place.findOne({ _id: id, isActive: true }).lean();
+        if (place) placeSource = 'places';
+      }
 
-    if (!place && (source === 'auto' || source === 'partners')) {
-      place = await PartnerPlace.findOne({ _id: id, status: 'active' }).lean();
-      if (place) placeSource = 'partners';
+      if (!place && (source === 'auto' || source === 'partners')) {
+        place = await PartnerPlace.findOne({ _id: id, status: 'active' }).lean();
+        if (place) placeSource = 'partners';
+      }
     }
 
     if (!place) {
@@ -416,6 +484,98 @@ export const getPlaceDetails = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Failed to fetch place details"
+    });
+  }
+};
+
+/**
+ * GET /api/explore/place/:placeId
+ * Get detailed information about a place by Google Maps placeId
+ */
+export const getPlaceDetailsByPlaceId = async (req, res) => {
+  try {
+    const { placeId } = req.params;
+
+    if (!placeId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Place ID là bắt buộc'
+      });
+    }
+
+    // ✅ ENHANCED: Get place details from Google Maps API
+    const googleResult = await googlemapsService.getPlaceDetails(placeId);
+    
+    if (!googleResult.success) {
+      return res.status(404).json({
+        success: false,
+        message: 'Không tìm thấy địa điểm trên Google Maps'
+      });
+    }
+
+    const placeData = googleResult.data;
+    
+    // ✅ ENHANCED: Enrich with photos
+    let photos = [];
+    if (placeData.photos && placeData.photos.length > 0) {
+      photos = placeData.photos.map(photo => ({
+        photo_reference: photo.photo_reference,
+        width: photo.width,
+        height: photo.height,
+        url_small: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${photo.photo_reference}&key=${process.env.GOOGLE_MAPS_API_KEY}`,
+        url_medium: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${photo.photo_reference}&key=${process.env.GOOGLE_MAPS_API_KEY}`,
+        url_large: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photo_reference=${photo.photo_reference}&key=${process.env.GOOGLE_MAPS_API_KEY}`
+      }));
+    }
+
+    // Normalize the response
+    const normalized = {
+      id: placeData.place_id,
+      title: placeData.name,
+      description: placeData.editorial_summary?.overview || placeData.formatted_address,
+      category: placeData.types ? placeData.types[0] : 'other',
+      address: placeData.formatted_address,
+      coordinates: {
+        lat: placeData.geometry?.location?.lat || null,
+        lng: placeData.geometry?.location?.lng || null
+      },
+      rating: {
+        average: placeData.rating || 0,
+        count: placeData.user_ratings_total || 0
+      },
+      tags: placeData.types || [],
+      images: photos,
+      photoUrl: photos.length > 0 ? photos[0].url_medium : null,
+      source: 'google',
+      isPartner: false,
+      place_id: placeData.place_id,
+      priceLevel: placeData.price_level,
+      openingHours: placeData.opening_hours?.weekday_text || null,
+      contact: {
+        phone: placeData.formatted_phone_number || null,
+        website: placeData.website || null
+      },
+      reviews: placeData.reviews ? placeData.reviews.slice(0, 5).map(review => ({
+        author: review.author_name,
+        rating: review.rating,
+        text: review.text,
+        time: review.time
+      })) : [],
+      addedAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    return res.status(200).json({
+      success: true,
+      message: 'Place details fetched successfully from Google Maps',
+      data: normalized
+    });
+
+  } catch (error) {
+    console.error("❌ Place details by placeId error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch place details from Google Maps"
     });
   }
 };
@@ -605,42 +765,57 @@ const filterByDistance = (items, userLat, userLng, maxDistanceKm) => {
 };
 
 /**
- * Calculate distance between two coordinates (Haversine formula)
+ * Calculate distance between two coordinates (using helper)
+ * Wrapper for backward compatibility
  */
 const calculateDistance = (lat1, lng1, lat2, lng2) => {
-  const R = 6371000; // Earth's radius in meters
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLng = (lng2 - lng1) * Math.PI / 180;
-  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-            Math.sin(dLng / 2) * Math.sin(dLng / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
+  return calcDistance(lat1, lng1, lat2, lng2);
 };
 
 /**
  * Normalize explore item to consistent format
+ * ✅ Always returns coordinates in {lat, lng} format for Frontend
+ * Supports: GeoJSON, {lat, lng}, {latitude, longitude}, nested formats
  */
 const normalizeExploreItem = (item) => {
+  // Extract coordinates using helper (supports all formats)
+  const coordinates = getCoordinates(item.location || item);
+  
+  // Validate coordinates
+  const validCoords = coordinates && isValidCoordinates(coordinates.lat, coordinates.lng)
+    ? coordinates
+    : null;
+  
+  // Normalize photo URL selection
+  const imageArray = Array.isArray(item.images) ? item.images : [];
+  let normalizedPhotoUrl = item.photoUrl || item.thumbnail || null;
+  if (imageArray.length > 0) {
+    const firstImage = imageArray[0];
+    if (typeof firstImage === 'string') {
+      normalizedPhotoUrl = firstImage;
+    } else if (firstImage && typeof firstImage === 'object') {
+      // Prefer medium, then large, then small
+      normalizedPhotoUrl = firstImage.url_medium || firstImage.url_large || firstImage.url_small || normalizedPhotoUrl;
+    }
+  }
+  
   return {
     id: item._id || item.id,
     title: item.name || item.title,
     description: item.description,
     category: item.category,
     address: item.address,
-    coordinates: {
-      lat: item.location?.lat || item.latitude || (item.location?.coordinates ? item.location.coordinates[1] : null),
-      lng: item.location?.lng || item.longitude || (item.location?.coordinates ? item.location.coordinates[0] : null)
-    },
+    
+    // ✅ Frontend-friendly format: {lat, lng}
+    coordinates: validCoords,
+    
     rating: {
       average: item.rating?.average || item.rating || 0,
-      count: item.rating?.count || item.reviewCount || 0
+      count: item.rating?.count || item.reviewCount || item.userRatingsTotal || 0
     },
     tags: item.tags || [],
-    images: Array.isArray(item.images) ? item.images : [],
-    photoUrl: Array.isArray(item.images) && item.images.length > 0 
-      ? item.images[0] 
-      : item.photoUrl || item.thumbnail || null,
+    images: imageArray,
+    photoUrl: normalizedPhotoUrl,
     source: item.source || 'unknown',
     isPartner: item.isPartner || false,
     priority: item.priority || 1,
@@ -648,10 +823,16 @@ const normalizeExploreItem = (item) => {
     contact: item.contact || null,
     openingHours: item.openingHours || null,
     amenities: item.amenities || [],
-    place_id: item.place_id || null,
+    place_id: item.place_id || item.placeId || null,
     addedAt: item.createdAt,
     updatedAt: item.updatedAt,
-    distance: item.distance || null
+    distance: item.distance || null,
+    
+    // ✅ ENHANCED: Additional Google Maps data
+    photos: item.photos || [],
+    reviews: item.reviews || [],
+    priceLevel: item.priceLevel || null,
+    userRatingsTotal: item.userRatingsTotal || 0
   };
 };
 
@@ -660,7 +841,8 @@ export default {
   getNearbyPlaces,
   getCategories,
   getFeaturedPlaces,
-  getPlaceDetails
+  getPlaceDetails,
+  getPlaceDetailsByPlaceId // ✅ ADDED: New function for placeId lookup
 };
 
 
