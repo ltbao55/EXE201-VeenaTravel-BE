@@ -1,4 +1,6 @@
-import PayOS from '@payos/node';
+import { PayOS } from '@payos/node';
+import dotenv from "dotenv";
+dotenv.config();
 
 class PayOSService {
   constructor() {
@@ -27,7 +29,11 @@ class PayOSService {
     }
 
     try {
-      this.payOS = new PayOS(clientId, apiKey, checksumKey);
+      this.payOS = new PayOS({
+        clientId: clientId,
+        apiKey: apiKey,
+        checksumKey: checksumKey
+      });
       console.log('✅ PayOS service initialized successfully');
     } catch (error) {
       console.error('❌ Failed to initialize PayOS service:', error.message);
@@ -57,7 +63,7 @@ class PayOSService {
     }
 
     try {
-      const paymentLinkResponse = await this.payOS.createPaymentLink(paymentData);
+      const paymentLinkResponse = await this.payOS.paymentRequests.create(paymentData);
       return {
         success: true,
         data: paymentLinkResponse,
@@ -83,7 +89,7 @@ class PayOSService {
     }
 
     try {
-      const paymentInfo = await this.payOS.getPaymentLinkInformation(orderId);
+      const paymentInfo = await this.payOS.paymentRequests.get(orderId);
       return {
         success: true,
         data: paymentInfo,
@@ -110,7 +116,7 @@ class PayOSService {
     }
 
     try {
-      const result = await this.payOS.cancelPaymentLink(orderId, cancellationReason);
+      const result = await this.payOS.paymentRequests.cancel(orderId, cancellationReason);
       return {
         success: true,
         data: result,
@@ -136,7 +142,7 @@ class PayOSService {
     }
 
     try {
-      return this.payOS.verifyPaymentWebhookData(webhookData);
+      return this.payOS.webhooks.verify(webhookData);
     } catch (error) {
       console.error('Verify webhook data error:', error);
       throw error;

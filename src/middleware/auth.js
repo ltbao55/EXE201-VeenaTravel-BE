@@ -284,6 +284,8 @@ export const optionalAuth = async (req, res, next) => {
 export const bypassAuth = async (req, res, next) => {
   try {
     console.log('🚨 WARNING: Authentication is bypassed! Using mock user.');
+    console.log('🔍 BypassAuth - Request URL:', req.url);
+    console.log('🔍 BypassAuth - Request Method:', req.method);
 
     // Create a mock user object that mimics a real authenticated user
     req.user = {
@@ -301,9 +303,10 @@ export const bypassAuth = async (req, res, next) => {
 
     req.authMethod = 'bypass';
 
+    console.log('✅ BypassAuth - Mock user created:', req.user.name);
     next();
   } catch (error) {
-    console.error('Bypass auth error:', error);
+    console.error('❌ Bypass auth error:', error);
     next();
   }
 };

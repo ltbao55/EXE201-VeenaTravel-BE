@@ -171,6 +171,34 @@ export const login = async (req, res) => {
   }
 };
 
+// Verify token and get user info
+export const verifyToken = async (req, res) => {
+  try {
+    // User info is already available from verifyJWTToken middleware
+    const user = req.user;
+    
+    res.json({
+      success: true,
+      message: 'Token is valid',
+      user: {
+        _id: user._id,
+        email: user.email,
+        name: user.name,
+        avatar: user.avatar,
+        role: user.role,
+        authMethod: user.authMethod,
+        createdAt: user.createdAt
+      }
+    });
+  } catch (error) {
+    console.error('Token verification error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error during token verification'
+    });
+  }
+};
+
 // Get current user profile (for JWT authenticated users)
 export const getProfile = async (req, res) => {
   try {

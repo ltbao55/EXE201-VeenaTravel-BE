@@ -33,7 +33,7 @@ export const createPaymentLink = async (req, res) => {
     // Generate unique order code
     const orderCode = payOSService.generateOrderCode();
 
-    // Get user info
+    // Get user info từ authentication
     const user = await User.findById(req.user._id);
     if (!user) {
       return res.status(404).json({
@@ -49,23 +49,26 @@ export const createPaymentLink = async (req, res) => {
       description,
       items,
       customer: {
-        userId: req.user._id,
+        userId: user._id,
         email: user.email,
         phone: user.phone,
         name: user.name
       },
       metadata,
-      returnUrl: `${process.env.CLIENT_URL || 'http://localhost:3000'}/payment/success`,
-      cancelUrl: `${process.env.CLIENT_URL || 'http://localhost:3000'}/payment/cancel`
+      returnUrl: `${process.env.CLIENT_URL || 'http://localhost:5001'}/api/payments/return?status=success`,
+      cancelUrl: `${process.env.CLIENT_URL || 'http://localhost:5001'}/api/payments/return?status=cancel`
     });
 
     await payment.save();
 
     // Create PayOS payment link
+    // PayOS yêu cầu description tối đa 25 ký tự
+    const shortDescription = description.length > 25 ? description.substring(0, 22) + '...' : description;
+    
     const paymentData = {
       orderCode,
       amount,
-      description,
+      description: shortDescription,
       items,
       returnUrl: payment.returnUrl,
       cancelUrl: payment.cancelUrl

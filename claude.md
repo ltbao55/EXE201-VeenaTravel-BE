@@ -98,6 +98,22 @@
   - CSS styling for embedded interface
   - JavaScript integration with PayOS SDK
 - Authentication currently bypassed for testing
+- **COMPLETED: PayOS Integration & Testing**
+  - Tích hợp PayOS trực tiếp vào code chính
+  - **FIXED: PayOS service integration** - Cập nhật theo tài liệu PayOS Node.js mới
+    - Sửa import: `import { PayOS } from '@payos/node'`
+    - Sửa khởi tạo: `new PayOS({ clientId, apiKey, checksumKey })`
+    - Sửa API calls: `paymentRequests.create()`, `paymentRequests.get()`, `webhooks.verify()`
+  - **FIXED: PayOS Description Length Error** - Sửa lỗi "Mô tả tối đa 25 kí tự"
+    - Thêm logic cắt ngắn description nếu > 25 ký tự
+    - PayOS API hoạt động ổn định với description dài
+    - Rate limit được xử lý tự động
+  - **RESTORED: Authentication** - Bật lại verifyToken như cũ
+    - Routes: /api/payments/create yêu cầu JWT token
+    - Xóa bypassAuth và test scripts
+    - Xóa giao diện frontend (đã có FE riêng)
+  - **VERIFIED: PayOS hoạt động hoàn hảo** - Tạo payment link thành công với checkout URL
+  - **VERIFIED: Authentication hoạt động** - API yêu cầu token hợp lệ
 
 ## Dependencies
 - **Core**: Express.js, MongoDB/Mongoose

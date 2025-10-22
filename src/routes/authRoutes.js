@@ -2,6 +2,7 @@ import express from 'express';
 import {
   register,
   login,
+  verifyToken,
   getProfile,
   changePassword
 } from '../controllers/authController.js';
@@ -14,6 +15,7 @@ router.post('/register', register);
 router.post('/login', login);
 
 // Protected routes (JWT only)
+router.post('/verify', verifyJWTToken, verifyToken);
 router.get('/profile', verifyJWTToken, getProfile);
 router.put('/change-password', verifyJWTToken, changePassword);
 

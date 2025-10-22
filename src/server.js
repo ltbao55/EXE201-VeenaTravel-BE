@@ -32,7 +32,6 @@ import exploreRoute from "./routes/exploreRoutes.js";
 
 // Import payment routes
 import paymentRoute from "./routes/paymentRoutes.js";
-import payosTestRoute from "./routes/payosTestRoutes.js";
 
 
 // Import database connection
@@ -136,9 +135,6 @@ app.use("/api/admin/partner-places", adminRoute);
 
 // Payment routes
 app.use("/api/payments", paymentRoute);
-
-// PayOS Test Interface routes
-app.use("/api/payments", payosTestRoute);
 
 // Health check endpoint
 app.get("/api/health", (_, res) => {
