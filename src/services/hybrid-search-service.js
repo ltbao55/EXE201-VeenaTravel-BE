@@ -175,7 +175,25 @@ const normalizePineconeResults = (promiseResult) => {
       lat: place.metadata.latitude,
       lng: place.metadata.longitude
     },
+    placeId: place.metadata.place_id || null, // ✅ ADDED: placeId from Pinecone metadata
     isPartner: true,
+    
+    // ✅ ENHANCED: Thêm thông tin chi tiết từ Pinecone metadata
+    photos: place.metadata.photos || [],
+    photoUrl: place.metadata.photo_url || null,
+    contact: {
+      phone: place.metadata.phone || null,
+      website: place.metadata.website || null
+    },
+    openingHours: place.metadata.opening_hours || null,
+    priceLevel: place.metadata.price_level || null,
+    userRatingsTotal: place.metadata.user_ratings_total || 0,
+    reviews: place.metadata.reviews || [],
+    amenities: place.metadata.amenities || [],
+    category: place.metadata.category || 'general',
+    tags: place.metadata.tags || [],
+    priority: place.metadata.priority || 1,
+    
     raw: place // Keep original data if needed
   }));
 };
@@ -198,7 +216,24 @@ const normalizeGoogleResults = (promiseResult) => {
       lat: place.geometry.location.lat,
       lng: place.geometry.location.lng
     },
+    placeId: place.place_id, // ✅ ADDED: placeId from Google Maps
     isPartner: false,
+    
+    // ✅ ENHANCED: Thêm thông tin chi tiết từ Google Maps
+    photos: place.photos || [],
+    photoUrl: place.photos?.[0]?.url_medium || null,
+    contact: {
+      phone: place.formatted_phone_number || null,
+      website: place.website || null
+    },
+    openingHours: place.opening_hours?.weekday_text || null,
+    priceLevel: place.price_level || null,
+    userRatingsTotal: place.user_ratings_total || 0,
+    reviews: place.reviews?.slice(0, 3) || [], // Top 3 reviews
+    amenities: place.types || [],
+    category: place.types?.[0] || 'other',
+    tags: place.types || [],
+    
     raw: place // Keep original data if needed
   }));
 };

@@ -44,6 +44,14 @@ router.get("/categories", exploreController.getCategories);
 router.get("/featured", exploreController.getFeaturedPlaces);
 
 /**
+ * @route   GET /api/explore/place/:placeId
+ * @desc    Get detailed information about a place by Google Maps placeId
+ * @params  placeId (Google Maps place ID)
+ * @access  Public
+ */
+router.get("/place/:placeId", exploreController.getPlaceDetailsByPlaceId);
+
+/**
  * @route   GET /api/explore/:id
  * @desc    Get detailed information about a specific place
  * @params  id (place ID)

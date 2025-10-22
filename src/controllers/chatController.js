@@ -549,17 +549,99 @@ export const getRecommendations = async (req, res) => {
       })
     );
     
+    // ✅ ENHANCED: Geocode suggestions to get placeId and coordinates
+    const geocodedSuggestions = await Promise.all(
+      enhancedSuggestions.map(async (suggestion) => {
+        try {
+          // Try to get coordinates and placeId from Google Maps
+          const geocodeResult = await googlemapsService.getCoordinates(
+            suggestion.address || `${suggestion.name}, ${location}`
+          );
+          
+          if (geocodeResult.success) {
+            return {
+              ...suggestion,
+              coordinates: {
+                lat: geocodeResult.data.lat,
+                lng: geocodeResult.data.lng
+              },
+              placeId: geocodeResult.data.place_id,
+              formatted_address: geocodeResult.data.formatted_address
+            };
+          }
+        } catch (error) {
+          console.warn(`⚠️ Geocoding failed for ${suggestion.name}:`, error.message);
+        }
+        
+        // Fallback: return original suggestion without coordinates
+        return {
+          ...suggestion,
+          coordinates: null,
+          placeId: null
+        };
+      })
+    );
+
     // Format locations for frontend map integration
-    const locations = enhancedSuggestions.map(suggestion => ({
+    const basicLocations = geocodedSuggestions.map(suggestion => ({
       id: suggestion.id || `rec_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
       name: suggestion.name,
-      address: suggestion.address || `${suggestion.name}, ${location}`,
+      address: suggestion.formatted_address || suggestion.address || `${suggestion.name}, ${location}`,
       description: suggestion.description || '',
-      coordinates: suggestion.coordinates || null,
+      coordinates: suggestion.coordinates,
+      placeId: suggestion.placeId, // ✅ ADDED: placeId for Google Maps API
       type: suggestion.type || 'recommendation',
       category: suggestion.category || 'general',
-      rating: suggestion.rating || null
+      rating: suggestion.rating || null,
+      
+      // ✅ ENHANCED: Thêm thông tin chi tiết cho recommendation markers
+      photos: suggestion.photos || [],
+      photoUrl: suggestion.photoUrl || null,
+      contact: suggestion.contact || null,
+      openingHours: suggestion.openingHours || null,
+      priceLevel: suggestion.priceLevel || null,
+      userRatingsTotal: suggestion.userRatingsTotal || 0,
+      reviews: suggestion.reviews || [],
+      amenities: suggestion.amenities || [],
+      estimatedCost: suggestion.estimatedCost || null,
+      bestTimeToVisit: suggestion.bestTimeToVisit || null,
+      tips: suggestion.tips || null
     }));
+    
+    // ✅ DEBUG: Log basic locations before enrichment
+    console.log('🔍 [DEBUG] Basic locations before enrichment:');
+    console.log('📍 Total basic locations:', basicLocations.length);
+    if (basicLocations.length > 0) {
+      console.log('📍 First basic location:', {
+        id: basicLocations[0].id,
+        name: basicLocations[0].name,
+        placeId: basicLocations[0].placeId,
+        coordinates: basicLocations[0].coordinates,
+        rating: basicLocations[0].rating,
+        photos: basicLocations[0].photos?.length || 0
+      });
+    }
+    
+    // ✅ ENHANCED: Enrich all locations with Google Maps details
+    const locations = await Promise.all(
+      basicLocations.map(location => enrichMarkerData(location))
+    );
+    
+    // ✅ DEBUG: Log enriched locations after enrichment
+    console.log('🔍 [DEBUG] Enriched locations after enrichment:');
+    console.log('📍 Total enriched locations:', locations.length);
+    if (locations.length > 0) {
+      console.log('📍 First enriched location:', {
+        id: locations[0].id,
+        name: locations[0].name,
+        placeId: locations[0].placeId,
+        coordinates: locations[0].coordinates,
+        rating: locations[0].rating,
+        photos: locations[0].photos?.length || 0,
+        contact: locations[0].contact,
+        amenities: locations[0].amenities
+      });
+    }
 
     return res.status(200).json({
       success: true,
@@ -798,8 +880,13 @@ const generateStructuredItinerary = async (userMessage, travelRequest, options =
     const itinerary = itineraryResult.data.itinerary;
 
     // ✅ STEP 1: Extract and geocode locations FIRST (before saving)
-    const extractedLocations = extractLocationsFromItinerary(itinerary);
+    const extractedLocations = await extractLocationsFromItinerary(itinerary);
     const geocodedLocations = await geocodeLocations(extractedLocations, travelRequest.destination);
+    
+    // ✅ ENHANCED: Enrich locations with Google Maps details
+    const enrichedLocations = await Promise.all(
+      geocodedLocations.map(location => enrichMarkerData(location))
+    );
 
     // ✅ STEP 2: Enrich itinerary with geocoded data
     const enrichedItinerary = enrichItineraryWithGeocodedData(itinerary, geocodedLocations);
@@ -826,6 +913,39 @@ const generateStructuredItinerary = async (userMessage, travelRequest, options =
     // Format response for chat
     const response = formatItineraryResponse(enrichedItinerary, travelRequest);
 
+    // ✅ DEBUG: Log full payload structure
+    console.log('🔍 [DEBUG] Full payload structure:');
+    console.log('📊 Response type:', "itinerary");
+    console.log('📍 Total locations:', enrichedLocations.length);
+    console.log('🗓️ Total days:', enrichedItinerary.days?.length || 0);
+    
+    // ✅ DEBUG: Log first location data
+    if (enrichedLocations.length > 0) {
+      console.log('🔍 [DEBUG] First location data:');
+      console.log('📍 Location ID:', enrichedLocations[0].id);
+      console.log('📍 Location name:', enrichedLocations[0].name);
+      console.log('📍 Location placeId:', enrichedLocations[0].placeId);
+      console.log('📍 Location coordinates:', enrichedLocations[0].coordinates);
+      console.log('📍 Location rating:', enrichedLocations[0].rating);
+      console.log('📍 Location photos:', enrichedLocations[0].photos?.length || 0);
+      console.log('📍 Location contact:', enrichedLocations[0].contact);
+      console.log('📍 Location amenities:', enrichedLocations[0].amenities);
+    }
+    
+    // ✅ DEBUG: Log first activity data
+    if (enrichedItinerary.days && enrichedItinerary.days.length > 0) {
+      const firstDay = enrichedItinerary.days[0];
+      if (firstDay.activities && firstDay.activities.length > 0) {
+        console.log('🔍 [DEBUG] First activity data:');
+        console.log('🗓️ Activity title:', firstDay.activities[0].title);
+        console.log('🗓️ Activity location:', firstDay.activities[0].location);
+        console.log('🗓️ Activity coordinates:', firstDay.activities[0].coordinates);
+        console.log('🗓️ Activity placeId:', firstDay.activities[0].placeId);
+        console.log('🗓️ Activity photos:', firstDay.activities[0].photos?.length || 0);
+        console.log('🗓️ Activity rating:', firstDay.activities[0].rating);
+      }
+    }
+
     return {
       success: true,
       data: {
@@ -839,7 +959,7 @@ const generateStructuredItinerary = async (userMessage, travelRequest, options =
         ],
         needsMoreInfo: false,
         actionRequired: null,
-        locations: geocodedLocations,
+        locations: enrichedLocations, // ✅ ENHANCED: Include enriched locations with full details
         hasLocationData: true,
         itinerary: enrichedItinerary,  // ← Return enriched version with all geo data
         tripId: tripId,
@@ -918,34 +1038,86 @@ const formatItineraryResponse = (itinerary, travelRequest) => {
 };
 
 /**
- * Extract locations from itinerary for map display
+ * Extract locations from itinerary for map display with geocoding
  */
-const extractLocationsFromItinerary = (itinerary) => {
+const extractLocationsFromItinerary = async (itinerary) => {
   const locations = [];
 
   if (itinerary.days && Array.isArray(itinerary.days)) {
-    itinerary.days.forEach((day, dayIndex) => {
+    for (let dayIndex = 0; dayIndex < itinerary.days.length; dayIndex++) {
+      const day = itinerary.days[dayIndex];
+      
       if (day.activities && Array.isArray(day.activities)) {
-        day.activities.forEach((activity, actIndex) => {
+        for (let actIndex = 0; actIndex < day.activities.length; actIndex++) {
+          const activity = day.activities[actIndex];
+          
           if (activity.coordinates || activity.location) {
-            locations.push({
+            let coordinates = activity.coordinates;
+            let placeId = activity.place_id;
+            let formatted_address = activity.formatted_address;
+            
+            // ✅ ENHANCED: If no coordinates, try geocoding
+            if (!coordinates && activity.location) {
+              try {
+                const geocodeResult = await googlemapsService.getCoordinates(activity.location);
+                if (geocodeResult.success) {
+                  coordinates = {
+                    lat: geocodeResult.data.lat,
+                    lng: geocodeResult.data.lng
+                  };
+                  placeId = geocodeResult.data.place_id;
+                  formatted_address = geocodeResult.data.formatted_address;
+                }
+              } catch (error) {
+                console.warn(`⚠️ Geocoding failed for ${activity.location}:`, error.message);
+              }
+            }
+            
+            const markerData = {
               id: `itinerary_day${dayIndex + 1}_act${actIndex + 1}`,
               source: 'itinerary',
               isPartner: false,
               name: activity.title || activity.name,
-              address: activity.location || activity.address,
+              address: formatted_address || activity.location || activity.address,
               description: activity.description,
-              coordinates: activity.coordinates || null,
+              coordinates: coordinates,
+              placeId: placeId, // ✅ ADDED: placeId for Google Maps API
               type: activity.type || 'activity',
               category: 'itinerary',
               rating: activity.rating || null,
               time: activity.time,
-              day: dayIndex + 1
-            });
+              day: dayIndex + 1,
+              
+              // ✅ ENHANCED: Thêm thông tin chi tiết cho itinerary markers
+              photos: activity.photos || [],
+              photoUrl: activity.photoUrl || null,
+              contact: activity.contact || null,
+              openingHours: activity.openingHours || null,
+              priceLevel: activity.priceLevel || null,
+              userRatingsTotal: activity.userRatingsTotal || 0,
+              reviews: activity.reviews || [],
+              amenities: activity.amenities || [],
+              estimatedCost: activity.estimatedCost || null,
+              duration: activity.duration || null,
+              priority: activity.priority || 'recommended'
+            };
+            
+            // ✅ DEBUG: Log marker creation
+            console.log('🎯 [DEBUG] Creating marker from activity:');
+            console.log('🎯 Activity title:', activity.title || activity.name);
+            console.log('🎯 Activity location:', activity.location);
+            console.log('🎯 Activity coordinates:', coordinates);
+            console.log('🎯 Activity placeId:', placeId);
+            console.log('🎯 Activity rating:', activity.rating);
+            console.log('🎯 Activity photos:', activity.photos?.length || 0);
+            console.log('🎯 Activity contact:', activity.contact);
+            console.log('🎯 Activity amenities:', activity.amenities);
+            
+            locations.push(markerData);
           }
-        });
+        }
       }
-    });
+    }
   }
 
   return locations;
@@ -1256,6 +1428,89 @@ const generateFallbackResponse = (locationData, userMessage) => {
 };
 
 /**
+ * ✅ ENHANCED: Enrich marker data with Google Maps details
+ * @param {Object} marker - Basic marker data
+ * @returns {Promise<Object>} - Enriched marker with full details
+ */
+const enrichMarkerData = async (marker) => {
+  try {
+    console.log('🎯 [DEBUG] Creating marker from location/activity:');
+    console.log('🎯 Marker ID:', marker.id);
+    console.log('🎯 Marker name:', marker.name);
+    console.log('🎯 Marker placeId:', marker.placeId);
+    console.log('🎯 Marker coordinates:', marker.coordinates);
+    console.log('🎯 Marker rating:', marker.rating);
+    console.log('🎯 Marker photos:', marker.photos?.length || 0);
+    
+    // If marker already has placeId, get details from Google Maps
+    if (marker.placeId && marker.placeId.startsWith('ChIJ')) {
+      console.log('🔍 [DEBUG] Calling Google Maps API for placeId:', marker.placeId);
+      const placeDetails = await googlemapsService.getPlaceDetails(marker.placeId);
+      
+      if (placeDetails.success) {
+        const place = placeDetails.data;
+        console.log('✅ [DEBUG] Google Maps API success for:', place.name);
+        
+        // Enrich with Google Maps data
+        return {
+          ...marker,
+          name: place.name || marker.name,
+          address: place.formatted_address || marker.address,
+          rating: {
+            average: place.rating || marker.rating?.average || 0,
+            count: place.user_ratings_total || marker.rating?.count || 0
+          },
+          photos: place.photos?.map(photo => ({
+            photo_reference: photo.photo_reference,
+            url_small: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${photo.photo_reference}&key=${process.env.GOOGLE_MAPS_API_KEY}`,
+            url_medium: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${photo.photo_reference}&key=${process.env.GOOGLE_MAPS_API_KEY}`,
+            url_large: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photo_reference=${photo.photo_reference}&key=${process.env.GOOGLE_MAPS_API_KEY}`
+          })) || marker.photos || [],
+          photoUrl: place.photos?.[0] ? 
+            `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${place.photos[0].photo_reference}&key=${process.env.GOOGLE_MAPS_API_KEY}` : 
+            marker.photoUrl,
+          contact: {
+            phone: place.formatted_phone_number || marker.contact?.phone || null,
+            website: place.website || marker.contact?.website || null
+          },
+          openingHours: place.opening_hours?.weekday_text || marker.openingHours || null,
+          priceLevel: place.price_level || marker.priceLevel || null,
+          userRatingsTotal: place.user_ratings_total || marker.userRatingsTotal || 0,
+          reviews: place.reviews?.slice(0, 3).map(review => ({
+            author: review.author_name,
+            rating: review.rating,
+            text: review.text,
+            time: review.time
+          })) || marker.reviews || [],
+          amenities: place.types || marker.amenities || [],
+          category: place.types?.[0] || marker.category || 'other',
+          description: place.editorial_summary?.overview || place.formatted_address || marker.description
+        };
+      }
+    }
+    
+    // If no placeId or geocoding failed, return original marker with defaults
+    return {
+      ...marker,
+      rating: marker.rating || { average: 0, count: 0 },
+      photos: marker.photos || [],
+      photoUrl: marker.photoUrl || null,
+      contact: marker.contact || { phone: null, website: null },
+      openingHours: marker.openingHours || null,
+      priceLevel: marker.priceLevel || null,
+      userRatingsTotal: marker.userRatingsTotal || 0,
+      reviews: marker.reviews || [],
+      amenities: marker.amenities || [],
+      category: marker.category || marker.type || 'other'
+    };
+    
+  } catch (error) {
+    console.warn(`⚠️ Failed to enrich marker data for ${marker.id}:`, error.message);
+    return marker; // Return original marker if enrichment fails
+  }
+};
+
+/**
  * Extract location data for frontend map integration from Hybrid Search results
  */
 const extractLocations = (locationData) => {
@@ -1270,10 +1525,25 @@ const extractLocations = (locationData) => {
     description: place.description,
     rating: place.rating,
     coordinates: place.coordinates,
+    placeId: place.placeId, // ✅ ADDED: placeId for Google Maps API
     type: place.raw?.types ? place.raw.types[0] : 'place',
     category: place.raw?.metadata?.category || 'general',
     finalScore: place.finalScore, // Add finalScore
-    scoreBreakdown: place.scoreBreakdown // Add scoreBreakdown
+    scoreBreakdown: place.scoreBreakdown, // Add scoreBreakdown
+    
+    // ✅ ENHANCED: Thêm thông tin chi tiết cho markers
+    photos: place.raw?.photos || place.photos || [],
+    photoUrl: place.raw?.photos?.[0]?.url_medium || place.photoUrl || null,
+    contact: {
+      phone: place.raw?.formatted_phone_number || place.contact?.phone || null,
+      website: place.raw?.website || place.contact?.website || null
+    },
+    openingHours: place.raw?.opening_hours?.weekday_text || place.openingHours || null,
+    priceLevel: place.raw?.price_level || place.priceLevel || null,
+    userRatingsTotal: place.raw?.user_ratings_total || place.userRatingsTotal || 0,
+    reviews: place.raw?.reviews?.slice(0, 3) || place.reviews || [], // Top 3 reviews
+    amenities: place.raw?.types || place.amenities || [],
+    distance: place.distanceMeters ? Math.round(place.distanceMeters / 1000 * 10) / 10 : null // km
   }));
 };
 
