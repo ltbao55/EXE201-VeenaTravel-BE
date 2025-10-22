@@ -28,11 +28,6 @@ import testMapsRoute from "./routes/test-maps.js";
 // Import hybrid search system routes
 import hybridSearchRoute from "./routes/hybridSearchRoutes.js";
 import adminRoute from "./routes/adminRoutes.js";
-import exploreRoute from "./routes/exploreRoutes.js";
-
-// Import payment routes
-import paymentRoute from "./routes/paymentRoutes.js";
-import payosTestRoute from "./routes/payosTestRoutes.js";
 
 
 // Import database connection
@@ -48,49 +43,6 @@ const app = express();
 
 // Connect to database
 connectDB();
-
-// CORS configuration - MUST BE FIRST
-const corsOptions = {
-  origin: NODE_ENV === 'production'
-    ? ['https://yourdomain.com'] // Replace with your production domain
-    : [
-        'http://localhost:3000', 
-        'http://127.0.0.1:3000', 
-        'http://localhost:3001', 
-        'http://localhost:5173',
-        'http://127.0.0.1:5173'
-      ],
-  credentials: true,
-  optionsSuccessStatus: 200,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
-};
-app.use(cors(corsOptions));
-
-// Handle preflight requests for all routes
-app.use((req, res, next) => {
-  // Debug CORS headers
-  console.log(`🔍 [CORS DEBUG] ${req.method} ${req.url}`);
-  console.log(`🔍 [CORS DEBUG] Origin: ${req.headers.origin}`);
-  console.log(`🔍 [CORS DEBUG] User-Agent: ${req.headers['user-agent']}`);
-  
-  if (req.method === 'OPTIONS') {
-    console.log('🔍 [CORS DEBUG] Handling OPTIONS preflight request');
-    res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.status(200).end();
-    console.log('✅ [CORS DEBUG] OPTIONS request handled');
-    return;
-  }
-  
-  // Add CORS headers to all responses
-  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  console.log('✅ [CORS DEBUG] CORS headers added to response');
-  next();
-});
 
 // Security middleware
 app.use(helmet({
@@ -114,8 +66,16 @@ app.use('/api/', limiter);
 // Compression middleware
 app.use(compression());
 
-// Serve static files from public directory
-app.use(express.static('public'));
+// CORS configuration
+const corsOptions = {
+  origin: NODE_ENV === 'production'
+    ? ['https://yourdomain.com'] // Replace with your production domain
+    : ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3001', 'http://localhost:5173'],
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
+
 // Body parsing middleware
 app.use(express.json({
   limit: '10mb',
@@ -160,17 +120,10 @@ app.use("/api/maps", mapsRoute);
 app.use("/api/integrated-search", integratedSearchRoute);
 app.use("/api/chat", chatRoute);
 app.use("/api/test-maps", testMapsRoute);
-app.use("/api/explore", exploreRoute);
 
 // Hybrid search system routes
 app.use("/api/hybrid-search", hybridSearchRoute);
 app.use("/api/admin/partner-places", adminRoute);
-
-// Payment routes
-app.use("/api/payments", paymentRoute);
-
-// PayOS Test Interface routes
-app.use("/api/payments", payosTestRoute);
 
 // Health check endpoint
 app.get("/api/health", (_, res) => {
