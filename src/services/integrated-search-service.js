@@ -290,21 +290,101 @@ export const searchNearLocation = async (query, location, radiusKm = 10) => {
  */
 const getGoogleMapsType = (category) => {
   const categoryMapping = {
+    // 🏨 Lưu trú
     'khách sạn': 'lodging',
+    'resort': 'lodging',
+    'homestay': 'lodging',
+    'hostel': 'lodging',
+    'villa': 'lodging',
+    'apartment': 'lodging',
     'khách sạn sang trọng': 'lodging',
     'khu nghỉ dưỡng': 'lodging',
-    'resort': 'lodging',
+    
+    // 🍽️ Ẩm thực
     'nhà hàng': 'restaurant',
+    'quán ăn': 'restaurant',
+    'cafe': 'cafe',
+    'bar': 'bar',
+    'pub': 'bar',
+    'bistro': 'restaurant',
+    'food court': 'restaurant',
+    'street food': 'meal_takeaway',
     'phố ẩm thực': 'restaurant',
     'chợ hải sản': 'restaurant',
-    'quán ăn': 'restaurant',
+    
+    // 🎯 Điểm tham quan
     'điểm tham quan': 'tourist_attraction',
+    'di tích lịch sử': 'tourist_attraction',
+    'bảo tàng': 'museum',
+    'chùa': 'place_of_worship',
+    'nhà thờ': 'place_of_worship',
+    'công viên': 'park',
+    'vườn thú': 'zoo',
     'hải đăng': 'tourist_attraction',
     'khu du lịch': 'tourist_attraction',
-    'khu bảo tồn thiên nhiên': 'park',
-    'công viên': 'park',
+    
+    // 🏖️ Du lịch tự nhiên
     'bãi biển': 'natural_feature',
-    'núi': 'natural_feature'
+    'núi': 'natural_feature',
+    'thác nước': 'natural_feature',
+    'hồ': 'natural_feature',
+    'sông': 'natural_feature',
+    'đảo': 'natural_feature',
+    'hang động': 'natural_feature',
+    'rừng': 'park',
+    'khu bảo tồn thiên nhiên': 'park',
+    
+    // 🎪 Giải trí
+    'khu vui chơi': 'amusement_park',
+    'công viên giải trí': 'amusement_park',
+    'casino': 'casino',
+    'club': 'night_club',
+    'karaoke': 'night_club',
+    'cinema': 'movie_theater',
+    'theater': 'movie_theater',
+    
+    // 🛍️ Mua sắm
+    'trung tâm thương mại': 'shopping_mall',
+    'chợ': 'shopping_mall',
+    'cửa hàng': 'store',
+    'siêu thị': 'supermarket',
+    'outlet': 'shopping_mall',
+    'night market': 'shopping_mall',
+    
+    // 🏥 Dịch vụ
+    'spa': 'spa',
+    'massage': 'spa',
+    'salon': 'beauty_salon',
+    'gym': 'gym',
+    'yoga': 'gym',
+    'bệnh viện': 'hospital',
+    'phòng khám': 'hospital',
+    'ngân hàng': 'bank',
+    
+    // 🚗 Giao thông
+    'sân bay': 'airport',
+    'bến xe': 'bus_station',
+    'ga tàu': 'subway_station',
+    'bến cảng': 'port',
+    'trạm xăng': 'gas_station',
+    'bãi đỗ xe': 'parking',
+    
+    // 🎓 Giáo dục & Văn hóa
+    'trường học': 'school',
+    'thư viện': 'library',
+    'trung tâm văn hóa': 'cultural_center',
+    'phòng triển lãm': 'art_gallery',
+    'studio': 'art_gallery',
+    
+    // 🏢 Công sở
+    'văn phòng': 'establishment',
+    'công ty': 'establishment',
+    'nhà máy': 'establishment',
+    'khu công nghiệp': 'establishment',
+    'co-working space': 'establishment',
+    
+    // 🏠 Khác
+    'other': 'establishment'
   };
 
   return categoryMapping[category?.toLowerCase()] || 'tourist_attraction';
