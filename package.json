@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
-    "import-data": "node src/scripts/importData.js"
+    "import-data": "node src/scripts/importData.js",
+    "add-diverse-places": "node src/scripts/add-diverse-places.js"
   },
   "keywords": [],
   "author": "",

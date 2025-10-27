@@ -34,7 +34,40 @@ const placeSchema = new mongoose.Schema({
   // Additional information
   category: {
     type: String,
-    enum: ['restaurant', 'attraction', 'hotel', 'shopping', 'entertainment', 'nature', 'historical', 'cultural', 'landmark', 'other'],
+    enum: [
+      // 🏨 Lưu trú
+      'khách sạn', 'resort', 'homestay', 'hostel', 'villa', 'apartment',
+      
+      // 🍽️ Ẩm thực
+      'nhà hàng', 'quán ăn', 'cafe', 'bar', 'pub', 'bistro', 'food court', 'street food',
+      
+      // 🎯 Điểm tham quan
+      'điểm tham quan', 'di tích lịch sử', 'bảo tàng', 'chùa', 'nhà thờ', 'công viên', 'vườn thú',
+      
+      // 🏖️ Du lịch tự nhiên
+      'bãi biển', 'núi', 'thác nước', 'hồ', 'sông', 'đảo', 'hang động', 'rừng',
+      
+      // 🎪 Giải trí
+      'khu vui chơi', 'công viên giải trí', 'casino', 'club', 'karaoke', 'cinema', 'theater',
+      
+      // 🛍️ Mua sắm
+      'trung tâm thương mại', 'chợ', 'cửa hàng', 'siêu thị', 'outlet', 'night market',
+      
+      // 🏥 Dịch vụ
+      'spa', 'massage', 'salon', 'gym', 'yoga', 'bệnh viện', 'phòng khám', 'ngân hàng',
+      
+      // 🚗 Giao thông
+      'sân bay', 'bến xe', 'ga tàu', 'bến cảng', 'trạm xăng', 'bãi đỗ xe',
+      
+      // 🎓 Giáo dục & Văn hóa
+      'trường học', 'thư viện', 'trung tâm văn hóa', 'phòng triển lãm', 'studio',
+      
+      // 🏢 Công sở
+      'văn phòng', 'công ty', 'nhà máy', 'khu công nghiệp', 'co-working space',
+      
+      // 🏠 Khác
+      'other'
+    ],
     default: 'other'
   },
   
