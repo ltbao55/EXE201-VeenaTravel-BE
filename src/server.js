@@ -145,7 +145,7 @@ app.use("/api/auth", authRoute);
 // Protected routes with bypass authentication
 app.use("/api/trips", bypassAuth, tripRoute);
 app.use("/api/users", bypassAuth, userRoute);
-app.use("/api/subscriptions", bypassAuth, userSubscriptionsRoute);
+app.use("/api/subscriptions", userSubscriptionsRoute);
 app.use("/api/chat-sessions", bypassAuth, chatSessionRoute);
 
 // Public routes
@@ -184,27 +184,191 @@ app.get("/api/docs", (_, res) => {
     res.status(200).json({
         success: true,
         message: "Veena Travel API Documentation",
-        notice: "🚨 AUTHENTICATION IS CURRENTLY DISABLED - ALL ROUTES ARE PUBLIC",
-        endpoints: {
-            "GET /api/health": "Health check",
-            "GET /api/plans": "Get travel plans (public)",
-            "GET /api/places": "Get places (public)",
-            "POST /api/auth/register": "Register with email/password (still available)",
-            "POST /api/auth/login": "Login with email/password (still available)",
-            "GET /api/auth/profile": "Get user profile (auth bypassed)",
-            "PUT /api/auth/change-password": "Change password (auth bypassed)",
-            "POST /api/users": "User management (auth bypassed)",
-            "POST /api/trips": "Trip management (auth bypassed)",
-            "POST /api/subscriptions": "Subscription management (auth bypassed)",
-            "POST /api/chat-sessions": "Chat sessions (auth bypassed)"
-        },
+        version: "1.0.0",
+        timestamp: new Date().toISOString(),
+        
+        // Authentication
         authentication: {
-            "status": "DISABLED",
-            "note": "All protected routes now use mock user authentication",
-            "original": {
-                "Firebase": "Bearer <firebase_token> - for Firebase authenticated users",
-                "JWT": "Bearer <jwt_token> - for email/password authenticated users"
+            "type": "JWT Token",
+            "method": "Bearer Token",
+            "format": "Authorization: Bearer <token>",
+            "howToGet": "Register or Login to get JWT token",
+            "endpoints": {
+                "POST /api/auth/register": "Register new user (Email, Password, Name)",
+                "POST /api/auth/login": "Login user (Email, Password)",
+                "POST /api/auth/verify": "Verify JWT token",
+                "GET /api/auth/profile": "Get user profile",
+                "PUT /api/auth/change-password": "Change password"
             }
+        },
+        
+        // User Management
+        users: {
+            description: "User profile and management",
+            requiresAuth: true,
+            endpoints: {
+                "GET /api/users/profile": "Get user profile",
+                "PUT /api/users/profile": "Update user profile",
+                "GET /api/users/subscriptions": "Get user subscriptions"
+            }
+        },
+        
+        // Travel Plans & Itineraries
+        plans: {
+            description: "Travel plans and itinerary management",
+            endpoints: {
+                "GET /api/plans": "Get all travel plans (public)",
+                "GET /api/plans/:id": "Get plan details",
+                "POST /api/plans": "Create new plan (requires auth)",
+                "PUT /api/plans/:id": "Update plan (requires auth)"
+            }
+        },
+        
+        // Places & Destinations
+        places: {
+            description: "Places, destinations, and location search",
+            endpoints: {
+                "GET /api/places": "Get places (public)",
+                "GET /api/places/:id": "Get place details",
+                "GET /api/places/search": "Search places",
+                "POST /api/places": "Add new place (requires auth)"
+            }
+        },
+        
+        // AI Chat
+        chat: {
+            description: "AI-powered chat assistant for travel planning",
+            requiresAuth: true,
+            messageLimits: {
+                "free": "5 messages",
+                "premium": "Unlimited",
+                "pro": "Unlimited"
+            },
+            endpoints: {
+                "POST /api/chat/message": "Send message to AI chat assistant (tracks usage)",
+                "POST /api/chat/modify-itinerary": "Modify itinerary based on chat request",
+                "POST /api/chat/recommendations": "Get travel recommendations",
+                "GET /api/chat-sessions": "Get chat sessions",
+                "GET /api/chat-sessions/:id": "Get chat session details"
+            }
+        },
+        
+        // Subscriptions
+        subscriptions: {
+            description: "User subscription management",
+            requiresAuth: true,
+            plans: {
+                "free": {
+                    price: "0 VND",
+                    trips: "3",
+                    messages: "5",
+                    duration: "30 days"
+                },
+                "premium": {
+                    price: "199,000 VND",
+                    trips: "20",
+                    messages: "Unlimited",
+                    duration: "30 days"
+                },
+                "pro": {
+                    price: "499,000 VND",
+                    trips: "Unlimited",
+                    messages: "Unlimited",
+                    duration: "30 days"
+                }
+            },
+            endpoints: {
+                "GET /api/subscriptions/current": "Get current subscription",
+                "GET /api/subscriptions/history": "Get subscription history",
+                "GET /api/subscriptions/check-trip-limit": "Check trip limit",
+                "GET /api/subscriptions/check-message-limit": "Check message limit",
+                "GET /api/subscriptions/test-premium": "Test premium access",
+                "GET /api/subscriptions/test-pro": "Test pro access",
+                "GET /api/subscriptions/admin/all": "Get all subscriptions (admin only)",
+                "PUT /api/subscriptions/admin/:id": "Update subscription (admin only)"
+            }
+        },
+        
+        // Payments (PayOS)
+        payments: {
+            description: "Payment processing with PayOS",
+            requiresAuth: true,
+            endpoints: {
+                "POST /api/payments/create": "Create payment link (requires auth)",
+                "GET /api/payments/info/:orderCode": "Get payment info (requires auth)",
+                "GET /api/payments/user-payments": "Get user payments (requires auth)",
+                "POST /api/payments/cancel/:orderCode": "Cancel payment (requires auth)",
+                "GET /api/payments/return": "Payment return callback (public)",
+                "POST /api/payments/webhook": "PayOS webhook handler (public)",
+                "GET /api/payments/stats": "Payment statistics (admin only)"
+            }
+        },
+        
+        // Trips & Itineraries
+        trips: {
+            description: "Trip and itinerary management",
+            requiresAuth: true,
+            endpoints: {
+                "GET /api/trips": "Get user trips",
+                "POST /api/trips": "Create new trip",
+                "GET /api/trips/:id": "Get trip details",
+                "PUT /api/trips/:id": "Update trip",
+                "DELETE /api/trips/:id": "Delete trip",
+                "POST /api/itinerary/generate": "Generate itinerary with AI",
+                "GET /api/itinerary/:id": "Get itinerary details"
+            }
+        },
+        
+        // Search & Explore
+        search: {
+            description: "Search and explore features",
+            endpoints: {
+                "GET /api/explore": "Explore places and destinations",
+                "POST /api/search": "Universal search",
+                "POST /api/hybrid-search": "Hybrid search (semantic + keyword)",
+                "GET /api/maps/geocode": "Geocode address",
+                "GET /api/maps/nearby": "Find nearby places",
+                "POST /api/maps/directions": "Get directions"
+            }
+        },
+        
+        // Admin Features
+        admin: {
+            description: "Administrative features",
+            requiresAuth: true,
+            requiresRole: "admin",
+            endpoints: {
+                "GET /api/admin/partner-places": "Get partner places",
+                "POST /api/admin/partner-places": "Add partner place",
+                "PUT /api/admin/partner-places/:id": "Update partner place",
+                "DELETE /api/admin/partner-places/:id": "Delete partner place",
+                "GET /api/admin/stats": "Get admin statistics"
+            }
+        },
+        
+        // Error Response Format
+        errorResponse: {
+            "success": false,
+            "message": "Error message",
+            "code": "ERROR_CODE",
+            "data": {}
+        },
+        
+        // Success Response Format
+        successResponse: {
+            "success": true,
+            "message": "Success message",
+            "data": {}
+        },
+        
+        // Subscription Error Response (Chat Limits)
+        chatLimitError: {
+            "success": false,
+            "message": "Bạn đã hết lượt chat miễn phí. Vui lòng nâng cấp lên Premium để tiếp tục chat không giới hạn!",
+            "code": "MESSAGE_LIMIT_EXCEEDED",
+            "current": 5,
+            "limit": 5,
+            "upgradeUrl": "/subscriptions/upgrade"
         }
     });
 });

@@ -114,6 +114,31 @@
     - Xóa giao diện frontend (đã có FE riêng)
   - **VERIFIED: PayOS hoạt động hoàn hảo** - Tạo payment link thành công với checkout URL
   - **VERIFIED: Authentication hoạt động** - API yêu cầu token hợp lệ
+  - **ADDED: Subscription System** - Hệ thống phân quyền user freemium vs premium
+    - Tạo subscription tự động sau khi thanh toán thành công
+    - Middleware phân quyền: requirePremium, requirePro, checkTripLimit, checkMessageLimit
+    - Service quản lý subscription: tạo, cập nhật, kiểm tra giới hạn
+    - Plans: Free (3 trips, 5 messages), Premium (20 trips, unlimited messages), Pro (unlimited)
+    - Auto-create free subscription cho user mới
+  - **ADDED: Chat Limits** - Giới hạn chat cho freemium và premium users
+    - Freemium: Chat tối đa 5 lần, sau đó yêu cầu nâng cấp premium
+    - Premium: Chat không giới hạn (message_limit = 0)
+    - Middleware kiểm tra giới hạn: checkMessageLimitMiddleware()
+    - Auto-track message usage khi chat thành công
+    - Thông báo lỗi rõ ràng khi hết lượt chat
+  - **UPDATED: API Documentation** - Cập nhật /api/docs với tất cả endpoints
+    - Authentication endpoints
+    - User management
+    - Travel plans & itineraries
+    - Places & destinations
+    - AI Chat (với message limits)
+    - Subscriptions (với plan details)
+    - Payments (PayOS integration)
+    - Trips & itineraries
+    - Search & explore
+    - Admin features
+    - Response formats & examples
+    - HTML documentation viewer tại /api-docs.html
 
 ## Dependencies
 - **Core**: Express.js, MongoDB/Mongoose

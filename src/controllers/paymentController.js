@@ -1,6 +1,7 @@
 import Payment from '../models/Payment.js';
 import payOSService from '../services/payos-service.js';
 import User from '../models/User.js';
+import SubscriptionService from '../services/subscription-service.js';
 
 // Tạo link thanh toán
 export const createPaymentLink = async (req, res) => {
@@ -275,6 +276,27 @@ export const handlePaymentReturn = async (req, res) => {
     // Update payment status based on return status
     if (status === 'success') {
       await payment.markAsPaid();
+      
+      // Tạo hoặc cập nhật subscription sau khi thanh toán thành công
+      try {
+        if (payment.customer && payment.customer.userId) {
+          const subscription = await SubscriptionService.createOrUpdateSubscription(
+            payment.customer.userId,
+            payment._id,
+            {
+              amount: payment.amount,
+              metadata: payment.metadata
+            }
+          );
+          
+          console.log(`🎉 Subscription created/updated for user ${payment.customer.userId}`);
+          console.log(`📋 Plan: ${subscription.planId.name} (${subscription.planId.type})`);
+        } else {
+          console.log('⚠️ No user ID found in payment, skipping subscription creation');
+        }
+      } catch (subscriptionError) {
+        console.error('❌ Subscription creation error:', subscriptionError);
+      }
     } else if (status === 'cancel') {
       await payment.markAsCancelled();
     }
@@ -368,6 +390,29 @@ export const handleWebhook = async (req, res) => {
     console.log(`💰 Amount: ${amount} ${currency}`);
     console.log(`🏦 Bank: ${counterAccountBankName || 'N/A'}`);
     console.log(`👤 Payer: ${counterAccountName || 'N/A'}`);
+
+    // Tạo hoặc cập nhật subscription sau khi thanh toán thành công
+    try {
+      if (payment.customer && payment.customer.userId) {
+        const subscription = await SubscriptionService.createOrUpdateSubscription(
+          payment.customer.userId,
+          payment._id,
+          {
+            amount: payment.amount,
+            metadata: payment.metadata
+          }
+        );
+        
+        console.log(`🎉 Subscription created/updated for user ${payment.customer.userId}`);
+        console.log(`📋 Plan: ${subscription.planId.name} (${subscription.planId.type})`);
+        console.log(`📅 Valid until: ${subscription.endDate}`);
+      } else {
+        console.log('⚠️ No user ID found in payment, skipping subscription creation');
+      }
+    } catch (subscriptionError) {
+      console.error('❌ Subscription creation error:', subscriptionError);
+      // Không fail webhook vì payment đã được xử lý thành công
+    }
 
     // Return success response (PayOS expects 2XX status)
     res.status(200).json({
