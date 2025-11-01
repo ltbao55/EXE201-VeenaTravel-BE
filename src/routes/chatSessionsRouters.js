@@ -1,4 +1,6 @@
 import express from 'express';
+import { verifyToken } from '../middleware/auth.js';
+import { checkChatSessionCreationLimit } from '../middleware/subscription.js';
 import {
   getAllChatSessions,
   getChatSessionById,
@@ -23,8 +25,8 @@ router.get("/:id", getChatSessionById);
 // Get chat session by session ID
 router.get("/session/:sessionId", getChatSessionBySessionId);
 
-// Create new chat session
-router.post("/", createChatSession);
+// Create new chat session (require auth + session limit for free plan)
+router.post("/", verifyToken, checkChatSessionCreationLimit, createChatSession);
 
 // Update chat session
 router.put("/:id", updateChatSession);
@@ -32,16 +34,16 @@ router.put("/:id", updateChatSession);
 // Delete chat session
 router.delete("/:id", deleteChatSession);
 
-// Add message to chat session
-router.post("/:id/messages", addMessageToSession);
+// Add message to chat session (require auth)
+router.post("/:id/messages", verifyToken, addMessageToSession);
 
-// Update session context
-router.put("/:id/context", updateSessionContext);
+// Update session context (require auth)
+router.put("/:id/context", verifyToken, updateSessionContext);
 
-// End chat session
-router.put("/:id/end", endChatSession);
+// End chat session (require auth)
+router.put("/:id/end", verifyToken, endChatSession);
 
-// Get user's chat sessions
-router.get("/user/:userId", getUserChatSessions);
+// Get user's chat sessions (require auth)
+router.get("/user/:userId", verifyToken, getUserChatSessions);
 
 export default router;

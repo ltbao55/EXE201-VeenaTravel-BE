@@ -1,5 +1,6 @@
 import UserSubscription from '../models/UserSubscription.js';
 import Plan from '../models/Plan.js';
+import ChatSession from '../models/ChatSession.js';
 
 /**
  * Middleware kiểm tra quyền truy cập dựa trên subscription
@@ -137,6 +138,60 @@ export const getUserSubscriptionInfo = async (req, res, next) => {
     req.subscription = null;
     req.userPlan = 'free';
     next();
+  }
+};
+
+/**
+ * Middleware: Giới hạn số chat session có thể tạo
+ * - free: tối đa 1 session đang tồn tại
+ * - premium/pro: không giới hạn
+ */
+export const checkChatSessionCreationLimit = async (req, res, next) => {
+  try {
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required',
+        code: 'AUTH_REQUIRED'
+      });
+    }
+
+    const userId = req.user._id;
+
+    // Lấy subscription hiện tại
+    const subscription = await UserSubscription.findOne({
+      userId,
+      status: 'active',
+      endDate: { $gt: new Date() }
+    }).populate('planId');
+
+    // Nếu không có subscription hợp lệ, xem như free
+    const planType = subscription?.planId?.type || 'free';
+
+    if (planType === 'free') {
+      // Đếm số session của user (còn tồn tại)
+      const existingCount = await ChatSession.countDocuments({ userId });
+      if (existingCount >= 1) {
+        return res.status(403).json({
+          success: false,
+          message: 'Bạn đã đạt giới hạn số phiên chat cho gói miễn phí (1 phiên). Vui lòng đóng phiên cũ hoặc nâng cấp gói để tạo thêm.',
+          code: 'SESSION_LIMIT_EXCEEDED',
+          current: existingCount,
+          limit: 1,
+          upgradeUrl: '/subscriptions/upgrade'
+        });
+      }
+    }
+
+    // premium/pro → không giới hạn
+    return next();
+  } catch (error) {
+    console.error('Chat session limit check error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to check chat session limit',
+      code: 'SESSION_LIMIT_CHECK_ERROR'
+    });
   }
 };
 

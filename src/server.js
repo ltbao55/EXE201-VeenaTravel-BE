@@ -146,7 +146,7 @@ app.use("/api/auth", authRoute);
 app.use("/api/trips", bypassAuth, tripRoute);
 app.use("/api/users", bypassAuth, userRoute);
 app.use("/api/subscriptions", userSubscriptionsRoute);
-app.use("/api/chat-sessions", bypassAuth, chatSessionRoute);
+app.use("/api/chat-sessions", chatSessionRoute);
 
 // Public routes
 app.use("/api/plans", plansRoute);

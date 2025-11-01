@@ -56,8 +56,8 @@ export const createPaymentLink = async (req, res) => {
         name: user.name
       },
       metadata,
-      returnUrl: `${process.env.CLIENT_URL || 'http://localhost:5001'}/api/payments/return?status=success`,
-      cancelUrl: `${process.env.CLIENT_URL || 'http://localhost:5001'}/api/payments/return?status=cancel`
+      returnUrl: `${process.env.CLIENT_URL || 'http://localhost:5001'}/api/payments/return?status=success&orderCode=${orderCode}`,
+      cancelUrl: `${process.env.CLIENT_URL || 'http://localhost:5001'}/api/payments/return?status=cancel&orderCode=${orderCode}`
     });
 
     await payment.save();
@@ -255,26 +255,30 @@ export const cancelPayment = async (req, res) => {
 // Xử lý return URL (thanh toán thành công)
 export const handlePaymentReturn = async (req, res) => {
   try {
-    const { orderCode, status } = req.query;
+    const { orderCode } = req.query;
+    const rawStatus = req.query.status;
+    const normalizedStatus = String(rawStatus || '').trim().toLowerCase();
 
+    // Xác định FE URL để redirect (đặt ở đây để dùng trong cả error cases)
+    const clientUrl = process.env.CLIENT_URL || process.env.FRONTEND_URL || 'http://localhost:5173';
+    
     if (!orderCode) {
-      return res.status(400).json({
-        success: false,
-        message: 'Order code is required'
-      });
+      console.error('❌ Payment return: Order code is required');
+      return res.redirect(`${clientUrl}/?payment=error&message=order_code_required`);
     }
 
     const payment = await Payment.findByOrderCode(parseInt(orderCode));
 
     if (!payment) {
-      return res.status(404).json({
-        success: false,
-        message: 'Payment not found'
-      });
+      console.error(`❌ Payment return: Payment not found for orderCode ${orderCode}`);
+      return res.redirect(`${clientUrl}/?payment=error&message=payment_not_found&orderCode=${orderCode}`);
     }
 
-    // Update payment status based on return status
-    if (status === 'success') {
+    // Update payment status based on return status (normalize common variants)
+    const isSuccessStatus = ['success', 'paid', 'succeeded', 'completed'].includes(normalizedStatus);
+    const isCancelStatus = ['cancel', 'cancelled', 'canceled', 'failed'].includes(normalizedStatus) || String(req.query.cancel).toLowerCase() === 'true';
+    
+    if (isSuccessStatus) {
       await payment.markAsPaid();
       
       // Tạo hoặc cập nhật subscription sau khi thanh toán thành công
@@ -296,28 +300,26 @@ export const handlePaymentReturn = async (req, res) => {
         }
       } catch (subscriptionError) {
         console.error('❌ Subscription creation error:', subscriptionError);
+        // Vẫn redirect về FE dù có lỗi subscription để user biết payment đã thành công
       }
-    } else if (status === 'cancel') {
+      
+      // ✅ Redirect về FE trang chủ sau khi đã cập nhật xong
+      return res.redirect(`${clientUrl}/?payment=success&orderCode=${payment.orderCode}`);
+      
+    } else if (isCancelStatus) {
       await payment.markAsCancelled();
+      
+      // ✅ Redirect về FE với thông báo cancel
+      return res.redirect(`${clientUrl}/?payment=cancelled&orderCode=${payment.orderCode}`);
     }
 
-    res.json({
-      success: true,
-      message: 'Payment status updated',
-      data: {
-        orderCode: payment.orderCode,
-        status: payment.status,
-        amount: payment.amount,
-        description: payment.description
-      }
-    });
+    // Nếu status không rõ ràng, vẫn redirect về FE (PayOS có thể gửi status khác)
+    return res.redirect(`${clientUrl}/?payment=unknown&orderCode=${payment.orderCode}`);
 
   } catch (error) {
     console.error('Handle payment return error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to handle payment return'
-    });
+    const clientUrl = process.env.CLIENT_URL || process.env.FRONTEND_URL || 'http://localhost:5173';
+    return res.redirect(`${clientUrl}/?payment=error&message=server_error`);
   }
 };
 
