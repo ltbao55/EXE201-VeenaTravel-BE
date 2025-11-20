@@ -55,7 +55,7 @@ const getAllowedOrigins = () => {
     // Read from environment variable, support multiple URLs separated by comma
     const frontendUrls = process.env.FRONTEND_URL || process.env.FRONTEND_URLS;
     if (frontendUrls) {
-      return frontendUrls.split(',').map(url => url.trim()).filter(url => url);
+      return frontendUrls.split(',').map(url => url.trim()).filter(url => url); 
     }
     // Fallback: if no env var, return empty array (will reject all origins)
     console.warn('⚠️  WARNING: FRONTEND_URL not set in production. CORS will reject all origins.');
