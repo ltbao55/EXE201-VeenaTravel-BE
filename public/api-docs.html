@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veena Travel API Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .section h3 {
+            color: #333;
+            font-size: 1.2rem;
+            margin: 20px 0 10px 0;
+        }
+        
+        .endpoint {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border-left: 3px solid #4caf50;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .endpoint strong {
+            color: #667eea;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .endpoint p {
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .badge-auth {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .badge-public {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .badge-admin {
+            background: #f44336;
+            color: white;
+        }
+        
+        .plans {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .plan-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .plan-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .plan-card .price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4caf50;
+            margin: 10px 0;
+        }
+        
+        .plan-card ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .plan-card ul li {
+            padding: 5px 0;
+            color: #666;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .error {
+            text-align: center;
+            padding: 40px;
+            color: #f44336;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Veena Travel API</h1>
+            <p>Complete API Documentation</p>
+            <p id="timestamp"></p>
+        </div>
+        
+        <div id="content">
+            <div class="loading">
+                <p>📡 Loading API Documentation...</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Load API documentation
+        fetch('/api/docs')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayDocumentation(data);
+                } else {
+                    displayError('Failed to load documentation');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                displayError('Unable to connect to server. Make sure the server is running on port 5001.');
+            });
+        
+        function displayDocumentation(data) {
+            const content = document.getElementById('content');
+            let html = '';
+            
+            // Authentication
+            html += createSection('🔐 Authentication', data.authentication, 'badge-auth');
+            
+            // Users
+            html += createSection('👤 Users', data.users, 'badge-auth');
+            
+            // Plans
+            html += createSection('📅 Travel Plans', data.plans, 'badge-public');
+            
+            // Places
+            html += createSection('📍 Places', data.places, 'badge-public');
+            
+            // Chat
+            html += createChatSection(data.chat);
+            
+            // Subscriptions
+            html += createSubscriptionSection(data.subscriptions);
+            
+            // Payments
+            html += createSection('💳 Payments', data.payments, 'badge-auth');
+            
+            // Trips
+            html += createSection('✈️ Trips', data.trips, 'badge-auth');
+            
+            // Search
+            html += createSection('🔍 Search & Explore', data.search, 'badge-public');
+            
+            // Admin
+            html += createSection('⚙️ Admin', data.admin, 'badge-admin');
+            
+            // Response formats
+            html += createResponseFormatsSection(data);
+            
+            content.innerHTML = html;
+            document.getElementById('timestamp').textContent = new Date(data.timestamp).toLocaleString();
+        }
+        
+        function createSection(title, sectionData, authBadge = '') {
+            if (!sectionData || !sectionData.endpoints) return '';
+            
+            let html = `
+                <div class="section">
+                    <h2>${title} <span class="badge ${authBadge}">${authBadge.includes('auth') ? 'Requires Auth' : authBadge.includes('admin') ? 'Admin Only' : 'Public'}</span></h2>
+                    <p>${sectionData.description || ''}</p>
+            `;
+            
+            Object.keys(sectionData.endpoints).forEach(endpoint => {
+                html += `
+                    <div class="endpoint">
+                        <strong>${endpoint}</strong>
+                        <p>${sectionData.endpoints[endpoint]}</p>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            return html;
+        }
+        
+        function createChatSection(chatData) {
+            if (!chatData) return '';
+            
+            let html = `
+                <div class="section">
+                    <h2>💬 AI Chat <span class="badge badge-auth">Requires Auth</span></h2>
+                    <p>${chatData.description}</p>
+                    <h3>Message Limits:</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li>🆓 Free: ${chatData.messageLimits.free}</li>
+                        <li>⭐ Premium: ${chatData.messageLimits.premium}</li>
+                        <li>👑 Pro: ${chatData.messageLimits.pro}</li>
+                    </ul>
+            `;
+            
+            Object.keys(chatData.endpoints).forEach(endpoint => {
+                html += `
+                    <div class="endpoint">
+                        <strong>${endpoint}</strong>
+                        <p>${chatData.endpoints[endpoint]}</p>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            return html;
+        }
+        
+        function createSubscriptionSection(subscriptionData) {
+            if (!subscriptionData) return '';
+            
+            let html = `
+                <div class="section">
+                    <h2>💰 Subscriptions <span class="badge badge-auth">Requires Auth</span></h2>
+                    <p>${subscriptionData.description}</p>
+                    <h3>Available Plans:</h3>
+                    <div class="plans">
+            `;
+            
+            Object.keys(subscriptionData.plans).forEach(planName => {
+                const plan = subscriptionData.plans[planName];
+                html += `
+                    <div class="plan-card">
+                        <h4>${planName.charAt(0).toUpperCase() + planName.slice(1)} Plan</h4>
+                        <div class="price">${plan.price}</div>
+                        <ul>
+                            <li>📅 Trips: ${plan.trips}</li>
+                            <li>💬 Messages: ${plan.messages}</li>
+                            <li>⏱️ Duration: ${plan.duration}</li>
+                        </ul>
+                    </div>
+                `;
+            });
+            
+            html += `</div><h3>Endpoints:</h3>`;
+            
+            Object.keys(subscriptionData.endpoints).forEach(endpoint => {
+                html += `
+                    <div class="endpoint">
+                        <strong>${endpoint}</strong>
+                        <p>${subscriptionData.endpoints[endpoint]}</p>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            return html;
+        }
+        
+        function createResponseFormatsSection(data) {
+            let html = `
+                <div class="section">
+                    <h2>📋 Response Formats</h2>
+                    <h3>Success Response:</h3>
+                    <pre style="background: white; padding: 15px; border-radius: 10px; overflow-x: auto;">${JSON.stringify(data.successResponse, null, 2)}</pre>
+                    <h3>Error Response:</h3>
+                    <pre style="background: white; padding: 15px; border-radius: 10px; overflow-x: auto;">${JSON.stringify(data.errorResponse, null, 2)}</pre>
+                    <h3>Chat Limit Error (Example):</h3>
+                    <pre style="background: white; padding: 15px; border-radius: 10px; overflow-x: auto;">${JSON.stringify(data.chatLimitError, null, 2)}</pre>
+                </div>
+            `;
+            return html;
+        }
+        
+        function displayError(message) {
+            const content = document.getElementById('content');
+            content.innerHTML = `
+                <div class="error">
+                    <h2>❌ Error</h2>
+                    <p>${message}</p>
+                    <p style="margin-top: 20px;">Please make sure the server is running on port 5001</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

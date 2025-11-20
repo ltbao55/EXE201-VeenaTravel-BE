@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hủy thanh toán - Veena Travel</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="cancel-page">
+            <div class="icon">
+                <i class="fas fa-times-circle"></i>
+            </div>
+            <h1>Thanh toán đã bị hủy</h1>
+            <p class="mb-20">Bạn đã hủy quá trình thanh toán. Đơn hàng của bạn chưa được xử lý.</p>
+            
+            <div class="payment-info" id="paymentInfo">
+                <!-- Payment information will be displayed here -->
+            </div>
+            
+            <div class="actions">
+                <button class="btn btn-primary" onclick="retryPayment()">
+                    <i class="fas fa-redo"></i> Thử thanh toán lại
+                </button>
+                <button class="btn btn-secondary" onclick="goHome()">
+                    <i class="fas fa-home"></i> Về trang chủ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get payment info from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderCode = urlParams.get('orderCode');
+        const amount = urlParams.get('amount');
+        const status = urlParams.get('status');
+        
+        // Display payment information
+        if (orderCode) {
+            document.getElementById('paymentInfo').innerHTML = `
+                <div class="info-card">
+                    <h3><i class="fas fa-info-circle"></i> Thông tin đơn hàng</h3>
+                    <p><strong>Mã đơn hàng:</strong> ${orderCode}</p>
+                    <p><strong>Trạng thái:</strong> <span class="status-cancelled">Đã hủy</span></p>
+                    ${amount ? `<p><strong>Số tiền:</strong> ${parseInt(amount).toLocaleString('vi-VN')} VNĐ</p>` : ''}
+                    <p><strong>Thời gian:</strong> ${new Date().toLocaleString('vi-VN')}</p>
+                </div>
+            `;
+        }
+        
+        function retryPayment() {
+            // In a real application, you would redirect to payment page with order code
+            if (orderCode) {
+                window.location.href = `/?retry=${orderCode}`;
+            } else {
+                window.location.href = '/';
+            }
+        }
+        
+        function goHome() {
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
