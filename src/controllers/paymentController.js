@@ -43,6 +43,14 @@ export const createPaymentLink = async (req, res) => {
       });
     }
 
+    // Determine server and client base URLs
+    const serverUrlRaw =
+      process.env.SERVER_URL ||
+      process.env.API_BASE_URL ||
+      (req?.headers?.host ? `https://${req.headers.host}` : null) ||
+      'http://localhost:5001';
+    const serverUrl = serverUrlRaw.replace(/\/$/, '');
+
     // Create payment record
     const payment = new Payment({
       orderCode,
@@ -56,8 +64,8 @@ export const createPaymentLink = async (req, res) => {
         name: user.name
       },
       metadata,
-      returnUrl: `${process.env.CLIENT_URL || 'http://localhost:5001'}/api/payments/return?status=success&orderCode=${orderCode}`,
-      cancelUrl: `${process.env.CLIENT_URL || 'http://localhost:5001'}/api/payments/return?status=cancel&orderCode=${orderCode}`
+      returnUrl: `${serverUrl}/api/payments/return?status=success&orderCode=${orderCode}`,
+      cancelUrl: `${serverUrl}/api/payments/return?status=cancel&orderCode=${orderCode}`
     });
 
     await payment.save();
@@ -260,7 +268,11 @@ export const handlePaymentReturn = async (req, res) => {
     const normalizedStatus = String(rawStatus || '').trim().toLowerCase();
 
     // Xác định FE URL để redirect (đặt ở đây để dùng trong cả error cases)
-    const clientUrl = process.env.CLIENT_URL || process.env.FRONTEND_URL || 'http://localhost:5173';
+    const clientUrl =
+      process.env.CLIENT_URL ||
+      process.env.FRONTEND_URL ||
+      process.env.CLIENT_ORIGIN ||
+      'http://localhost:5173';
     
     if (!orderCode) {
       console.error('❌ Payment return: Order code is required');
