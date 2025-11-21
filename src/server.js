@@ -51,28 +51,34 @@ connectDB();
 // CORS configuration - MUST BE FIRST
 // Parse allowed origins from environment variable (comma-separated for multiple URLs)
 const getAllowedOrigins = () => {
+  // Always allow localhost origins for development/testing
+  const localhostOrigins = [
+    'http://localhost:3000', 
+    'http://127.0.0.1:3000', 
+    'http://localhost:3001', 
+    'http://localhost:5173',
+    'http://127.0.0.1:5173'
+  ];
+  
   if (NODE_ENV === 'production') {
     // Read from environment variable, support multiple URLs separated by comma
     const frontendUrls = process.env.FRONTEND_URL || process.env.FRONTEND_URLS;
     if (frontendUrls) {
-      return frontendUrls.split(',').map(url => url.trim()).filter(url => url); 
+      const productionUrls = frontendUrls.split(',').map(url => url.trim()).filter(url => url);
+      // Combine localhost (for testing) + production URLs
+      return [...localhostOrigins, ...productionUrls];
     } 
-    // Fallback: if no env var, return empty array (will reject all origins)
-    console.warn('⚠️  WARNING: FRONTEND_URL not set in production. CORS will reject all origins.');
-    return [];
+    // Fallback: allow localhost even in production (for testing)
+    console.warn('⚠️  WARNING: FRONTEND_URL not set in production. Only localhost origins are allowed.');
+    return localhostOrigins;
   } else {
     // Development origins
-    return [
-      'http://localhost:3000', 
-      'http://127.0.0.1:3000', 
-      'http://localhost:3001', 
-      'http://localhost:5173',
-      'http://127.0.0.1:5173'
-    ];
+    return localhostOrigins;
   }
 };
 
 const allowedOrigins = getAllowedOrigins();
+console.log(`✅ CORS: Allowed origins:`, allowedOrigins);
 
 const corsOptions = {
   origin: function (origin, callback) {
@@ -101,45 +107,46 @@ app.use(cors(corsOptions));
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   
-  // Debug CORS headers (only in development)
-  if (NODE_ENV === 'development') {
-    console.log(`🔍 [CORS DEBUG] ${req.method} ${req.url}`);
-    console.log(`🔍 [CORS DEBUG] Origin: ${origin}`);
+  // Always log CORS info for debugging (especially important in production)
+  if (req.method === 'OPTIONS' || origin) {
+    console.log(`🔍 [CORS] ${req.method} ${req.url} | Origin: ${origin || 'none'}`);
   }
   
   if (req.method === 'OPTIONS') {
     // Check if origin is allowed
-    if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
-      if (NODE_ENV === 'development') {
-        console.log('🔍 [CORS DEBUG] Handling OPTIONS preflight request');
-      }
+    const isOriginAllowed = !origin || allowedOrigins.includes(origin);
+    
+    if (isOriginAllowed) {
+      // Set CORS headers for preflight
       res.header('Access-Control-Allow-Origin', origin || allowedOrigins[0] || '*');
       res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
       res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
       res.header('Access-Control-Allow-Credentials', 'true');
       res.header('Access-Control-Max-Age', '86400'); // 24 hours
+      console.log(`✅ [CORS] Preflight allowed for origin: ${origin || 'none'}`);
       res.status(200).end();
-      if (NODE_ENV === 'development') {
-        console.log('✅ [CORS DEBUG] OPTIONS request handled');
-      }
       return;
     } else {
       // Origin not allowed
-      res.status(403).json({ error: 'CORS: Origin not allowed' });
+      console.warn(`❌ [CORS] Preflight rejected. Origin: ${origin} | Allowed:`, allowedOrigins);
+      res.status(403).json({ 
+        error: 'CORS: Origin not allowed',
+        origin: origin,
+        allowedOrigins: allowedOrigins
+      });
       return;
     }
   }
   
   // For non-OPTIONS requests, CORS middleware already handles headers
   // But we ensure origin is set correctly
-  if (origin && (allowedOrigins.length === 0 || allowedOrigins.includes(origin))) {
+  if (origin && allowedOrigins.includes(origin)) {
     res.header('Access-Control-Allow-Origin', origin);
     res.header('Access-Control-Allow-Credentials', 'true');
+  } else if (origin && !allowedOrigins.includes(origin)) {
+    console.warn(`⚠️  [CORS] Origin ${origin} not in allowed list for ${req.method} ${req.url}`);
   }
   
-  if (NODE_ENV === 'development') {
-    console.log('✅ [CORS DEBUG] CORS headers added to response');
-  }
   next();
 });
 
