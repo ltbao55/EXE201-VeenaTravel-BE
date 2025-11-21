@@ -4,13 +4,6 @@ import mapsController from '../controllers/mapsController.js';
 const router = express.Router();
 
 /**
- * @route GET /api/maps/api-key
- * @desc Lấy Google Maps API key (dùng cho frontend)
- * @access Public (đã giới hạn domain trong Google Cloud Console)
- */
-router.get('/api-key', mapsController.getMapsApiKey);
-
-/**
  * @route POST /api/maps/geocode
  * @desc Lấy tọa độ từ địa chỉ
  * @access Public (do đã bypass auth)

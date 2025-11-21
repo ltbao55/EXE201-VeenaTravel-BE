@@ -1,35 +1,6 @@
 import googleMapsService from '../services/googlemaps-service.js';
 
 /**
- * Cung cấp Google Maps API Key cho frontend (đã được giới hạn domain)
- */
-export const getMapsApiKey = (req, res) => {
-  try {
-    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
-
-    if (!apiKey) {
-      return res.status(500).json({
-        success: false,
-        message: 'Google Maps API key chưa được cấu hình trên backend'
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      data: {
-        apiKey
-      }
-    });
-  } catch (error) {
-    console.error('Lỗi khi trả về Google Maps API key:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Không thể cung cấp Google Maps API key'
-    });
-  }
-};
-
-/**
  * Lấy tọa độ từ địa chỉ
  */
 export const geocode = async (req, res) => {
@@ -421,7 +392,6 @@ export const generatePhotoUrl = async (req, res) => {
 };
 
 export default {
-  getMapsApiKey,
   geocode,
   reverseGeocode,
   searchNearby,
