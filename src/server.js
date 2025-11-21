@@ -383,6 +383,11 @@ app.get("/api/docs", (_, res) => {
             description: "Search and explore features",
             endpoints: {
                 "GET /api/explore": "Explore places and destinations",
+                "GET /api/explore/nearby": "Find nearby places (hybrid search with radius filter)",
+                "GET /api/explore/categories": "List available categories with counts",
+                "GET /api/explore/featured": "Get curated/featured places",
+                "GET /api/explore/place/:placeId": "Get place details by Google placeId",
+                "GET /api/explore/:id": "Get place details by internal ID",
                 "POST /api/search": "Universal search",
                 "POST /api/hybrid-search": "Hybrid search (semantic + keyword)",
                 "GET /api/maps/geocode": "Geocode address",

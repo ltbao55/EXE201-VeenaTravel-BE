@@ -309,7 +309,12 @@ Static files served by Express:
 ### Search (`/api/search`, `/api/hybrid-search`, `/api/explore`)
 - `POST /api/search` - Universal search
 - `POST /api/hybrid-search` - Hybrid search (semantic + keyword)
-- `GET /api/explore` - Explore places by categories
+- `GET /api/explore` - Explore places and destinations
+- `GET /api/explore/nearby` - Hybrid nearby search with radius filter
+- `GET /api/explore/categories` - Get available categories with counts
+- `GET /api/explore/featured` - Get featured/curated places
+- `GET /api/explore/place/:placeId` - Get place details via Google Maps placeId
+- `GET /api/explore/:id` - Get place details via internal ID
 
 ### Chat (`/api/chat`)
 - `POST /api/chat/message` - Send message to AI chat
