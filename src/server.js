@@ -49,35 +49,43 @@ const app = express();
 connectDB();
 
 // CORS configuration - MUST BE FIRST
+const normalizeOrigin = (origin) => {
+  if (!origin) return origin;
+  return origin.endsWith('/') ? origin.slice(0, -1) : origin;
+};
+
 // Parse allowed origins from environment variable (comma-separated for multiple URLs)
 const getAllowedOrigins = () => {
   // Always allow localhost origins for development/testing
   const localhostOrigins = [
-    'http://localhost:3000', 
-    'http://127.0.0.1:3000', 
-    'http://localhost:3001', 
-    'http://localhost:5173',
-    'http://127.0.0.1:5173'
+        'http://localhost:3000', 
+        'http://127.0.0.1:3000', 
+        'http://localhost:3001', 
+        'http://localhost:5173',
+        'http://127.0.0.1:5173'
   ];
   
   if (NODE_ENV === 'production') {
     // Read from environment variable, support multiple URLs separated by comma
     const frontendUrls = process.env.FRONTEND_URL || process.env.FRONTEND_URLS;
     if (frontendUrls) {
-      const productionUrls = frontendUrls.split(',').map(url => url.trim()).filter(url => url);
+      const productionUrls = frontendUrls
+        .split(',')
+        .map(url => normalizeOrigin(url.trim()))
+        .filter(url => url);
       // Combine localhost (for testing) + production URLs
-      return [...localhostOrigins, ...productionUrls];
+      return [...localhostOrigins.map(normalizeOrigin), ...productionUrls];
     } 
     // Fallback: allow localhost even in production (for testing)
     console.warn('⚠️  WARNING: FRONTEND_URL not set in production. Only localhost origins are allowed.');
-    return localhostOrigins;
+    return localhostOrigins.map(normalizeOrigin);
   } else {
     // Development origins
-    return localhostOrigins;
+    return localhostOrigins.map(normalizeOrigin);
   }
 };
 
-const allowedOrigins = getAllowedOrigins();
+const allowedOrigins = Array.from(new Set(getAllowedOrigins()));
 console.log(`✅ CORS: Allowed origins:`, allowedOrigins);
 
 const corsOptions = {
@@ -87,8 +95,10 @@ const corsOptions = {
       return callback(null, true);
     }
     
+    const normalizedOrigin = normalizeOrigin(origin);
+    
     // Check if origin is in allowed list
-    if (allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+    if (allowedOrigins.length === 0 || allowedOrigins.includes(normalizedOrigin)) {
       callback(null, true);
     } else {
       console.warn(`⚠️  CORS: Origin ${origin} not allowed. Allowed origins:`, allowedOrigins);
@@ -106,6 +116,7 @@ app.use(cors(corsOptions));
 // Handle preflight requests for all routes
 app.use((req, res, next) => {
   const origin = req.headers.origin;
+  const normalizedOrigin = normalizeOrigin(origin);
   
   // Always log CORS info for debugging (especially important in production)
   if (req.method === 'OPTIONS' || origin) {
@@ -114,7 +125,7 @@ app.use((req, res, next) => {
   
   if (req.method === 'OPTIONS') {
     // Check if origin is allowed
-    const isOriginAllowed = !origin || allowedOrigins.includes(origin);
+    const isOriginAllowed = !origin || allowedOrigins.includes(normalizedOrigin);
     
     if (isOriginAllowed) {
       // Set CORS headers for preflight
@@ -140,10 +151,10 @@ app.use((req, res, next) => {
   
   // For non-OPTIONS requests, CORS middleware already handles headers
   // But we ensure origin is set correctly
-  if (origin && allowedOrigins.includes(origin)) {
+  if (origin && allowedOrigins.includes(normalizedOrigin)) {
     res.header('Access-Control-Allow-Origin', origin);
     res.header('Access-Control-Allow-Credentials', 'true');
-  } else if (origin && !allowedOrigins.includes(origin)) {
+  } else if (origin && !allowedOrigins.includes(normalizedOrigin)) {
     console.warn(`⚠️  [CORS] Origin ${origin} not in allowed list for ${req.method} ${req.url}`);
   }
   

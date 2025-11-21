@@ -1,0 +1,207 @@
+# CONTEXT: VeenaTravel AI Backend – Dùng cho Gemini Soạn Slide Thuyết Trình
+
+> File này được dùng làm **context đầu vào** cho Gemini (hoặc LLM khác) để sinh slide thuyết trình cho môn EXE201. Nội dung tập trung vào bức tranh tổng quan, mục tiêu, kiến trúc, các MVP và kết quả đạt được.
+
+---
+
+## 1. Thông tin chung dự án
+
+- **Tên hệ thống**: VeenaTravel – AI Travel Planning & Explore Platform
+- **Phần phụ trách**: Backend REST API (Node.js + MongoDB)
+- **Mục tiêu chính**: Xây dựng backend cho một nền tảng gợi ý du lịch thông minh, cho phép:
+  - Khám phá địa điểm (explore) theo chủ đề/city
+  - Tìm kiếm địa điểm bằng hybrid search (từ khóa + ngữ nghĩa)
+  - Tạo itinerary tự động bằng AI (Gemini)
+  - Quản lý chuyến đi (trips, plans)
+  - Tích hợp thanh toán (PayOS) để nâng cấp gói subscription
+  - Giới hạn tính năng theo gói (free / premium / pro)
+
+- **Đối tượng người dùng**:
+  - Người dùng phổ thông muốn tìm địa điểm & lịch trình du lịch nhanh
+  - Người dùng có nhu cầu cao hơn (premium/pro) muốn nhiều trip, chat AI không giới hạn
+  - Admin & đối tác (partner places) muốn đưa địa điểm của mình lên hệ thống
+
+- **Giá trị mang lại**:
+  - Tiết kiệm thời gian lên kế hoạch du lịch
+  - Gợi ý cá nhân hóa theo nhu cầu, ngân sách, thời gian
+  - Tập trung dữ liệu địa điểm từ nhiều nguồn (Google Maps, dữ liệu nội bộ, partner places)
+
+---
+
+## 2. Bối cảnh & bài toán
+
+- Người dùng hiện nay phải tự search thông tin rời rạc (Google, blog, review) → tốn thời gian, khó tối ưu lịch trình.
+- Các app du lịch hiện tại thường hoặc chỉ đặt vé/khách sạn, hoặc chỉ gợi ý địa điểm; ít app có **AI itinerary + explore theo chủ đề + thanh toán gói dịch vụ** trên cùng một nền tảng.
+- Bài toán backend:
+  - Thiết kế **API thống nhất** cho: auth, explore, search, maps, trips, chat, payments, subscriptions.
+  - Kết hợp **AI (Gemini)** + **vector search (Pinecone)** + **Google Maps** + **MongoDB** trong một kiến trúc rõ ràng, dễ mở rộng.
+  - Đảm bảo **bảo mật, giới hạn rate, CORS, phân quyền subscription** để có thể triển khai thật (Vercel + Mongo Atlas).
+
+---
+
+## 3. Kiến trúc tổng quan backend
+
+- **Tech stack chính**:
+  - Runtime: **Node.js (ESM)**
+  - Framework: **Express.js**
+  - Database: **MongoDB + Mongoose**
+  - AI: **Google Gemini** qua thư viện `@google/generative-ai`
+  - Vector DB: **Pinecone** cho semantic / hybrid search
+  - Maps: **Google Maps API** (geocoding, nearby search, directions)
+  - Payment: **PayOS** (`@payos/node`)
+  - Auth: **JWT** (email/password), middleware bảo vệ route
+  - Deploy: **Vercel** (serverless), Mongo Atlas (hoặc MongoDB cloud/local)
+
+- **Các layer chính**:
+  - **Routes**: định nghĩa endpoint REST (`/api/...`)
+  - **Controllers**: xử lý logic từng use case (auth, explore, trips, payments,...)
+  - **Services**: tích hợp với Gemini, Pinecone, Google Maps, PayOS, cache, subscription
+  - **Models**: schema MongoDB (User, Trip, Place, PartnerPlace, Itinerary, Payment, Subscription,...)
+  - **Middleware**: auth (JWT), subscription limit, CORS, rate limiting, logging, error handling
+
+- **Những điểm nhấn kiến trúc**:
+  - Backend được thiết kế **module hóa**, mỗi domain có controller + route + service riêng.
+  - Có **/api/docs** trả về JSON doc và một trang **/api-docs.html** render đẹp để demo API.
+  - Hỗ trợ **graceful shutdown, global error handler, rate limiting, helmet, compression, logging**.
+
+---
+
+## 4. Danh sách module & chức năng chính
+
+- **Auth & Users** (`/api/auth`, `/api/users`)
+  - Đăng ký, đăng nhập với email/password
+  - Lấy và cập nhật hồ sơ người dùng
+  - Đổi mật khẩu, verify token
+
+- **Explore & Places** (`/api/explore`, `/api/places`)
+  - `GET /api/explore`: danh sách địa điểm khám phá theo city, category, search text
+  - `GET /api/explore/nearby`: tìm địa điểm gần vị trí (lat/lng + radius)
+  - `GET /api/explore/categories`: trả về danh sách category + số lượng
+  - `GET /api/explore/featured`: danh sách địa điểm nổi bật
+  - `GET /api/explore/place/:placeId`: chi tiết địa điểm từ Google Maps placeId
+  - `GET /api/explore/:id`: chi tiết địa điểm theo ID nội bộ
+  - `GET /api/places`, `/api/places/:id`, `/api/places/search`
+
+- **Search & Hybrid Search** (`/api/search`, `/api/hybrid-search`)
+  - Search text thường (keyword)
+  - Hybrid search: kết hợp keyword + vector semantic search từ Pinecone
+
+- **Maps** (`/api/maps`)
+  - Geocoding, nearby search, directions (để vẽ route cho itinerary)
+
+- **AI Chat & Itinerary** (`/api/chat`, `/api/itinerary`)
+  - Chat với AI về gợi ý chuyến đi, địa điểm phù hợp
+  - Generate itinerary với Gemini (theo số ngày, city, sở thích)
+  - Chỉnh sửa itinerary dựa trên chat
+
+- **Trips & Plans** (`/api/trips`, `/api/plans`)
+  - Lưu, cập nhật, xóa trip
+  - Gắn itinerary vào trip
+  - Sử dụng plan templates để tạo trip nhanh
+
+- **Payments & Subscriptions** (`/api/payments`, `/api/subscriptions`)
+  - Tạo link thanh toán PayOS
+  - Nhận webhook/return từ PayOS → cập nhật Payment & Subscription
+  - Quản lý gói: Free, Premium, Pro (giới hạn trips/messages)
+  - Endpoint kiểm tra giới hạn trips/messages cho từng user
+
+- **Admin & Partner Places** (`/api/admin/partner-places`)
+  - CRUD địa điểm đối tác, ưu tiên hiển thị trên explore
+  - Thống kê tổng quan cho admin
+
+---
+
+## 5. MVP – Các phiên bản tối thiểu khả dụng
+
+> Lưu ý: Đây là gợi ý để Gemini dựng slide, bạn có thể chỉnh lại tên MVP theo NOTICE 3 nếu cần.
+
+### MVP 1 – Core Explore API & Data Layer
+
+- Thiết lập project Node.js + Express + MongoDB.
+- Xây dựng các model cơ bản: `Place`, `Destination`, `Plan`.
+- Import dữ liệu địa điểm mẫu (vt_data_chuan.json, scripts seed/explore).
+- Xây dựng các endpoint public đầu tiên:
+  - `GET /api/places`, `GET /api/places/:id`
+  - `GET /api/explore` với filter đơn giản (city, category, q)
+- Kết nối Google Maps basic (geocoding + place details) để enrich dữ liệu.
+- Kết quả: Có thể demo màn **Explore** đơn giản từ frontend, chưa cần AI.
+
+### MVP 2 – Hybrid Search + Explore Nâng Cao
+
+- Tích hợp **Pinecone** để lưu vector embedding cho địa điểm / mô tả.
+- Xây dựng `hybrid-search-service` kết hợp:
+  - Semantic search (Pinecone) + keyword search (MongoDB)
+  - Pagination, scoring, boosting cho partner places
+- Nâng cấp Explore API:
+  - `GET /api/explore/nearby`, `/categories`, `/featured`, `/place/:placeId`, `/:id`
+- Bổ sung caching & logging để đảm bảo hiệu năng, dễ debug.
+- Kết quả: Explore thông minh hơn, có thể demo các truy vấn đa dạng (theo mood, sở thích,...).
+
+### MVP 3 – AI Itinerary & Chat Assistant
+
+- Tích hợp **Gemini** qua `gemini-service.js`.
+- Xây dựng pipeline generate itinerary:
+  - Input: city, số ngày, ngân sách, phong cách du lịch
+  - Output: danh sách ngày, hoạt động, địa điểm, giờ gợi ý
+- Xây dựng `/api/chat` với giới hạn messages theo subscription.
+- Lưu `ChatSession` để có thể xem lại lịch sử hội thoại.
+- Kết quả: Demo flow **Ask → AI Suggest Itinerary → Save Trip**.
+
+### MVP 4 – Payments + Subscription + Limit Features
+
+- Tích hợp **PayOS**:
+  - Tạo đơn thanh toán (`/api/payments/create`)
+  - Xử lý `return` + `webhook` để cập nhật Payment
+- Thiết kế hệ thống **Subscription**:
+  - Free: 3 trips, 5 messages
+  - Premium: 20 trips, unlimited messages
+  - Pro: unlimited trips + messages
+- Middleware:
+  - Kiểm tra giới hạn trips/messages trước khi gọi API quan trọng
+  - Chặn và trả về message gợi ý nâng cấp gói
+- Kết quả: Demo end-to-end **thanh toán → nâng cấp tài khoản → mở khoá giới hạn**.
+
+### MVP 5 – Admin & Partner Places (Optional / Stretch)
+
+- CRUD partner places dành cho admin (`/api/admin/partner-places`).
+- Ưu tiên hiển thị partner places trong kết quả explore/hybrid search.
+- Trang thống kê đơn giản (tổng số trips, payments, users, partner places).
+
+---
+
+## 6. Luồng demo đề xuất cho slide
+
+> Đoạn này giúp Gemini sắp xếp slide theo câu chuyện từ vấn đề → giải pháp → demo.
+
+1. **Slide 1–2**: Giới thiệu bài toán, nhu cầu người dùng, mục tiêu hệ thống VeenaTravel.
+2. **Slide 3–4**: Kiến trúc tổng quan backend (sơ đồ high-level: FE ↔ API Gateway/Express ↔ Services ↔ DB + External APIs).
+3. **Slide 5–7**: Trình bày từng MVP theo timeline:
+   - MVP 1: Core Explore + DB
+   - MVP 2: Hybrid Search + Explore nâng cao
+   - MVP 3: AI Itinerary + Chat
+   - MVP 4: Payment + Subscription
+   - (Optional) MVP 5: Admin + Partner Places
+4. **Slide 8–9**: Demo flow end-to-end:
+   - Người dùng explore → chat với AI → generate itinerary → lưu trip → (nếu vượt limit) thanh toán nâng gói.
+5. **Slide 10**: Kết quả đạt được (tính năng, hiệu năng, độ ổn định, độ hoàn thiện backend).
+6. **Slide 11**: Hướng phát triển tương lai (gợi ý ở mục tiếp theo).
+
+---
+
+## 7. Hướng phát triển tương lai (gợi ý để Gemini đưa vào slide)
+
+- Bổ sung **recommendation cá nhân hóa** dựa trên lịch sử trip & rating.
+- Thêm **social features**: share trip, review, like/comment itinerary.
+- Đa dạng hoá nguồn dữ liệu (Booking, Agoda, AirBnB API,...).
+- Đóng gói backend thành microservices tách biệt (auth, explore, payments, ai-service,...).
+- Tối ưu hoá chi phí và latency khi gọi Gemini, Pinecone, Google Maps.
+
+---
+
+## 8. Ghi chú cho Gemini khi sinh slide
+
+- Ưu tiên trình bày **theo flow câu chuyện**: Problem → Solution → Architecture → MVP/Timeline → Demo → Results → Future work.
+- Slide nên nhiều hình khối, sơ đồ (architecture, data flow, user journey), ít chữ, nhiều ý chính dạng bullet.
+- Có thể trích 1–2 ví dụ endpoint tiêu biểu (nhưng không cần show quá nhiều code).
+- Nhấn mạnh các điểm **có tính “AI + hệ thống thực tế”**: Gemini, Pinecone, Google Maps, PayOS, Subscription limits.
+- Mỗi MVP nên có 1 slide: mục tiêu, tính năng chính, kết quả demo tương ứng.
